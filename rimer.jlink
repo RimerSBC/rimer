@@ -1,0 +1,5 @@
+loadfile Debug/rimer.hex
+r
+g
+power on
+exit

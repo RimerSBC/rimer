@@ -1,0 +1,415 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeLite_Project Name="rimer" Version="11000" InternalType="Console">
+  <VirtualDirectory Name="iface">
+    <File Name="iface/enums.h"/>
+    <File Name="iface/enums.c"/>
+    <File Name="iface/rimer_iface.h"/>
+    <File Name="iface/iface_sd.h"/>
+    <File Name="iface/iface_eeprom.h"/>
+    <File Name="iface/iface_zx80.c"/>
+    <File Name="iface/iface_set.h"/>
+    <File Name="iface/iface_mem.h"/>
+    <File Name="iface/iface_aio.c"/>
+    <File Name="iface/iface_sio.c"/>
+    <File Name="iface/iface_dio.c"/>
+    <File Name="iface/iface_bas.h"/>
+    <File Name="iface/iface_zx80.h"/>
+    <File Name="iface/iface_set.c"/>
+    <File Name="iface/iface_eeprom.c"/>
+    <File Name="iface/iface_sd.c"/>
+    <File Name="iface/rimer_iface.c"/>
+    <File Name="iface/iface_mem.c"/>
+    <File Name="iface/iface_aio.h"/>
+    <File Name="iface/iface_bas.c"/>
+    <File Name="iface/iface_dio.h"/>
+    <File Name="iface/iface_sio.h"/>
+  </VirtualDirectory>
+  <VirtualDirectory Name="zx80">
+    <File Name="zx80/z80macros.h"/>
+    <File Name="zx80/z80dbg.h"/>
+    <File Name="zx80/z80dbg.c"/>
+    <File Name="zx80/z80mnx.h"/>
+    <File Name="zx80/z80mnx.c"/>
+    <File Name="zx80/z80cpu.h"/>
+    <File Name="zx80/snapshot.h"/>
+    <File Name="zx80/zxscreen.h"/>
+    <File Name="zx80/zx80sys.h"/>
+    <File Name="zx80/instructions.h"/>
+    <File Name="zx80/tables.h"/>
+    <File Name="zx80/z80user.h"/>
+    <File Name="zx80/z80cpu.c"/>
+    <File Name="zx80/snapshot.c"/>
+    <File Name="zx80/zxscreen.c"/>
+    <File Name="zx80/zx80sys.c"/>
+    <File Name="zx80/z80config.h"/>
+  </VirtualDirectory>
+  <VirtualDirectory Name="basicd">
+    <File Name="basicd/berror.c"/>
+    <File Name="basicd/rpn.h"/>
+    <File Name="basicd/bedit.h"/>
+    <File Name="basicd/bcore.h"/>
+    <File Name="basicd/banalizer.h"/>
+    <File Name="basicd/bscreen.c"/>
+    <File Name="basicd/bstring.c"/>
+    <File Name="basicd/bmath.c"/>
+    <File Name="basicd/bprime.c"/>
+    <File Name="basicd/bprog_rom.c"/>
+    <File Name="basicd/bhighlight.h"/>
+    <File Name="basicd/bfunc.c"/>
+    <File Name="basicd/bscreen.h"/>
+    <File Name="basicd/banalizer.c"/>
+    <File Name="basicd/rpn.c"/>
+    <File Name="basicd/bcore.c"/>
+    <File Name="basicd/bedit.c"/>
+    <File Name="basicd/berror.h"/>
+    <File Name="basicd/bprog_rom.h"/>
+    <File Name="basicd/bprime.h"/>
+    <File Name="basicd/bstring.h"/>
+    <File Name="basicd/bmath.h"/>
+    <File Name="basicd/bfunc.h"/>
+    <File Name="basicd/bhighlight.c"/>
+  </VirtualDirectory>
+  <VirtualDirectory Name="inc">
+    <File Name="inc/fat.h"/>
+    <File Name="inc/commandline.h"/>
+    <File Name="inc/dmactrl.h"/>
+    <File Name="inc/colours.h"/>
+    <File Name="inc/FreeRTOSConfig.h"/>
+    <File Name="inc/keyboard.h"/>
+    <File Name="inc/bsp.h"/>
+    <File Name="inc/uterm.h"/>
+    <File Name="inc/ff.h"/>
+    <File Name="inc/i2c_port.h"/>
+    <File Name="inc/editline.h"/>
+    <File Name="inc/graph.h"/>
+    <File Name="inc/portmacro.h"/>
+    <File Name="inc/sys_sercom.h"/>
+    <File Name="inc/lcd.h"/>
+    <File Name="inc/llfs.h"/>
+    <File Name="inc/fonts.h"/>
+    <File Name="inc/config.h"/>
+    <File Name="inc/tstring.h"/>
+    <File Name="inc/rshell.h"/>
+    <File Name="inc/llfs_vol_eeprom.h"/>
+    <VirtualDirectory Name="kernel">
+      <File Name="inc/kernel/atomic.h"/>
+      <File Name="inc/kernel/stack_macros.h"/>
+      <File Name="inc/kernel/queue.h"/>
+      <File Name="inc/kernel/projdefs.h"/>
+      <File Name="inc/kernel/FreeRTOS.h"/>
+      <File Name="inc/kernel/StackMacros.h"/>
+      <File Name="inc/kernel/stream_buffer.h"/>
+      <File Name="inc/kernel/portable.h"/>
+      <File Name="inc/kernel/list.h"/>
+      <File Name="inc/kernel/event_groups.h"/>
+      <File Name="inc/kernel/croutine.h"/>
+      <File Name="inc/kernel/mpu_wrappers.h"/>
+      <File Name="inc/kernel/semphr.h"/>
+      <File Name="inc/kernel/deprecated_definitions.h"/>
+      <File Name="inc/kernel/mpu_prototypes.h"/>
+      <File Name="inc/kernel/message_buffer.h"/>
+      <File Name="inc/kernel/task.h"/>
+      <File Name="inc/kernel/timers.h"/>
+    </VirtualDirectory>
+    <VirtualDirectory Name="cmsis">
+      <File Name="inc/cmsis/cmsis_gcc.h"/>
+      <File Name="inc/cmsis/arm_math.h"/>
+      <File Name="inc/cmsis/core_cm4.h"/>
+      <File Name="inc/cmsis/cmsis_armcc.h"/>
+      <File Name="inc/cmsis/arm_common_tables.h"/>
+      <File Name="inc/cmsis/cmsis_armclang.h"/>
+      <File Name="inc/cmsis/cmsis_compiler.h"/>
+      <File Name="inc/cmsis/arm_const_structs.h"/>
+    </VirtualDirectory>
+    <VirtualDirectory Name="samd51">
+      <File Name="inc/samd51/samd51p19a.h"/>
+      <File Name="inc/samd51/samd51n19a.h"/>
+      <File Name="inc/samd51/component-version.h"/>
+      <File Name="inc/samd51/samd51j20a.h"/>
+      <File Name="inc/samd51/system_samd51.h"/>
+      <File Name="inc/samd51/samd51.h"/>
+      <File Name="inc/samd51/samd51p20a.h"/>
+      <File Name="inc/samd51/samd51g18a.h"/>
+      <File Name="inc/samd51/samd51j19a.h"/>
+      <File Name="inc/samd51/samd51j18a.h"/>
+      <File Name="inc/samd51/samd51g19a.h"/>
+      <File Name="inc/samd51/samd51n20a.h"/>
+      <File Name="inc/samd51/sam.h"/>
+      <VirtualDirectory Name="instance">
+        <File Name="inc/samd51/instance/sdhc1.h"/>
+        <File Name="inc/samd51/instance/freqm.h"/>
+        <File Name="inc/samd51/instance/wdt.h"/>
+        <File Name="inc/samd51/instance/sercom7.h"/>
+        <File Name="inc/samd51/instance/oscctrl.h"/>
+        <File Name="inc/samd51/instance/sercom3.h"/>
+        <File Name="inc/samd51/instance/tcc2.h"/>
+        <File Name="inc/samd51/instance/qspi.h"/>
+        <File Name="inc/samd51/instance/mclk.h"/>
+        <File Name="inc/samd51/instance/tc3.h"/>
+        <File Name="inc/samd51/instance/pcc.h"/>
+        <File Name="inc/samd51/instance/nvmctrl.h"/>
+        <File Name="inc/samd51/instance/can1.h"/>
+        <File Name="inc/samd51/instance/tc7.h"/>
+        <File Name="inc/samd51/instance/sercom4.h"/>
+        <File Name="inc/samd51/instance/usb.h"/>
+        <File Name="inc/samd51/instance/rtc.h"/>
+        <File Name="inc/samd51/instance/sercom0.h"/>
+        <File Name="inc/samd51/instance/gclk.h"/>
+        <File Name="inc/samd51/instance/tcc1.h"/>
+        <File Name="inc/samd51/instance/ac.h"/>
+        <File Name="inc/samd51/instance/trng.h"/>
+        <File Name="inc/samd51/instance/aes.h"/>
+        <File Name="inc/samd51/instance/tc0.h"/>
+        <File Name="inc/samd51/instance/hmatrix.h"/>
+        <File Name="inc/samd51/instance/ramecc.h"/>
+        <File Name="inc/samd51/instance/tc4.h"/>
+        <File Name="inc/samd51/instance/dmac.h"/>
+        <File Name="inc/samd51/instance/eic.h"/>
+        <File Name="inc/samd51/instance/pukcc.h"/>
+        <File Name="inc/samd51/instance/adc1.h"/>
+        <File Name="inc/samd51/instance/sercom5.h"/>
+        <File Name="inc/samd51/instance/tcc4.h"/>
+        <File Name="inc/samd51/instance/pdec.h"/>
+        <File Name="inc/samd51/instance/tcc0.h"/>
+        <File Name="inc/samd51/instance/dsu.h"/>
+        <File Name="inc/samd51/instance/sercom1.h"/>
+        <File Name="inc/samd51/instance/i2s.h"/>
+        <File Name="inc/samd51/instance/tc1.h"/>
+        <File Name="inc/samd51/instance/tc5.h"/>
+        <File Name="inc/samd51/instance/adc0.h"/>
+        <File Name="inc/samd51/instance/cmcc.h"/>
+        <File Name="inc/samd51/instance/ccl.h"/>
+        <File Name="inc/samd51/instance/sdhc0.h"/>
+        <File Name="inc/samd51/instance/osc32kctrl.h"/>
+        <File Name="inc/samd51/instance/sercom6.h"/>
+        <File Name="inc/samd51/instance/tcc3.h"/>
+        <File Name="inc/samd51/instance/icm.h"/>
+        <File Name="inc/samd51/instance/sercom2.h"/>
+        <File Name="inc/samd51/instance/port.h"/>
+        <File Name="inc/samd51/instance/tc2.h"/>
+        <File Name="inc/samd51/instance/dac.h"/>
+        <File Name="inc/samd51/instance/pm.h"/>
+        <File Name="inc/samd51/instance/can0.h"/>
+        <File Name="inc/samd51/instance/supc.h"/>
+        <File Name="inc/samd51/instance/evsys.h"/>
+        <File Name="inc/samd51/instance/pac.h"/>
+        <File Name="inc/samd51/instance/tc6.h"/>
+        <File Name="inc/samd51/instance/rstc.h"/>
+      </VirtualDirectory>
+      <VirtualDirectory Name="component">
+        <File Name="inc/samd51/component/freqm.h"/>
+        <File Name="inc/samd51/component/wdt.h"/>
+        <File Name="inc/samd51/component/oscctrl.h"/>
+        <File Name="inc/samd51/component/tcc.h"/>
+        <File Name="inc/samd51/component/qspi.h"/>
+        <File Name="inc/samd51/component/mclk.h"/>
+        <File Name="inc/samd51/component/pcc.h"/>
+        <File Name="inc/samd51/component/nvmctrl.h"/>
+        <File Name="inc/samd51/component/sercom.h"/>
+        <File Name="inc/samd51/component/usb.h"/>
+        <File Name="inc/samd51/component/rtc.h"/>
+        <File Name="inc/samd51/component/gclk.h"/>
+        <File Name="inc/samd51/component/ac.h"/>
+        <File Name="inc/samd51/component/trng.h"/>
+        <File Name="inc/samd51/component/aes.h"/>
+        <File Name="inc/samd51/component/ramecc.h"/>
+        <File Name="inc/samd51/component/dmac.h"/>
+        <File Name="inc/samd51/component/eic.h"/>
+        <File Name="inc/samd51/component/can.h"/>
+        <File Name="inc/samd51/component/pdec.h"/>
+        <File Name="inc/samd51/component/dsu.h"/>
+        <File Name="inc/samd51/component/i2s.h"/>
+        <File Name="inc/samd51/component/cmcc.h"/>
+        <File Name="inc/samd51/component/ccl.h"/>
+        <File Name="inc/samd51/component/osc32kctrl.h"/>
+        <File Name="inc/samd51/component/icm.h"/>
+        <File Name="inc/samd51/component/port.h"/>
+        <File Name="inc/samd51/component/sdhc.h"/>
+        <File Name="inc/samd51/component/tc.h"/>
+        <File Name="inc/samd51/component/dac.h"/>
+        <File Name="inc/samd51/component/pm.h"/>
+        <File Name="inc/samd51/component/supc.h"/>
+        <File Name="inc/samd51/component/evsys.h"/>
+        <File Name="inc/samd51/component/adc.h"/>
+        <File Name="inc/samd51/component/hmatrixb.h"/>
+        <File Name="inc/samd51/component/pac.h"/>
+        <File Name="inc/samd51/component/rstc.h"/>
+      </VirtualDirectory>
+      <VirtualDirectory Name="pio">
+        <File Name="inc/samd51/pio/samd51p19a.h"/>
+        <File Name="inc/samd51/pio/samd51n19a.h"/>
+        <File Name="inc/samd51/pio/samd51j20a.h"/>
+        <File Name="inc/samd51/pio/samd51p20a.h"/>
+        <File Name="inc/samd51/pio/samd51g18a.h"/>
+        <File Name="inc/samd51/pio/samd51j19a.h"/>
+        <File Name="inc/samd51/pio/samd51j18a.h"/>
+        <File Name="inc/samd51/pio/samd51g19a.h"/>
+        <File Name="inc/samd51/pio/samd51n20a.h"/>
+      </VirtualDirectory>
+    </VirtualDirectory>
+  </VirtualDirectory>
+  <VirtualDirectory Name="src">
+    <File Name="src/syscalls.c" ExcludeProjConfig=""/>
+    <File Name="src/startup.c"/>
+    <File Name="src/main.c"/>
+  </VirtualDirectory>
+  <Description/>
+  <Dependencies/>
+  <Dependencies Name="Debug"/>
+  <Dependencies Name="Release"/>
+  <Settings Type="Executable">
+    <GlobalSettings>
+      <Compiler Options="" C_Options="-mthumb -ffunction-sections -fdata-sections -mcpu=cortex-m4 -std=gnu99 -mfloat-abi=hard -mfpu=fpv4-sp-d16" Assembler="">
+        <IncludePath Value="."/>
+        <IncludePath Value="inc"/>
+        <IncludePath Value="inc/cmsis"/>
+        <IncludePath Value="inc/samd51"/>
+        <IncludePath Value="inc/kernel"/>
+        <IncludePath Value="iface"/>
+        <IncludePath Value="basicd"/>
+        <IncludePath Value="zx80"/>
+      </Compiler>
+      <Linker Options="-mthumb -Wl,-Map=$(ProjectName).map --specs=nosys.specs --specs=nano.specs -Wl,--gc-sections -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16">
+        <LibraryPath Value="lib"/>
+        <Library Value="ucosR"/>
+      </Linker>
+      <ResourceCompiler Options=""/>
+    </GlobalSettings>
+    <Configuration Name="Debug" CompilerType="arm-none-eabi" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="prepend" BuildResWithGlobalSettings="append">
+      <Compiler Options="-g;-O0;-Wall" C_Options="-g;-O0;-Wall" Assembler="" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" PCHFlags="" PCHFlagsPolicy="0">
+        <IncludePath Value="bios/samd51"/>
+        <Preprocessor Value="__SAMD51J20A__"/>
+      </Compiler>
+      <Linker Options="-TucosR_1M_256k.ld" Required="yes">
+        <Library Value="m"/>
+      </Linker>
+      <ResourceCompiler Options="" Required="no"/>
+      <General OutputFile="$(IntermediateDirectory)/$(ProjectName)" IntermediateDirectory="$(ConfigurationName)" Command="./$(ProjectName)" CommandArguments="" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="$(IntermediateDirectory)" PauseExecWhenProcTerminates="yes" IsGUIProgram="yes" IsEnabled="yes"/>
+      <BuildSystem Name="Default"/>
+      <Environment EnvVarSetName="&lt;Use Defaults&gt;" DbgSetName="&lt;Use Defaults&gt;">
+        <![CDATA[]]>
+      </Environment>
+      <Debugger IsRemote="yes" RemoteHostName="localhost" RemoteHostPort="2331" DebuggerPath="/Applications/ARM/bin/arm-none-eabi-gdb" IsExtended="no">
+        <DebuggerSearchPaths/>
+        <PostConnectCommands>monitor reset halt</PostConnectCommands>
+        <StartupCommands/>
+      </Debugger>
+      <PreBuild/>
+      <PostBuild>
+        <Command Enabled="yes">/Applications/ARM/bin/arm-none-eabi-size $(IntermediateDirectory)/$(ProjectName)</Command>
+        <Command Enabled="yes">/Applications/ARM/bin/arm-none-eabi-objcopy -O ihex $(IntermediateDirectory)/$(ProjectName) $(IntermediateDirectory)/$(ProjectName).hex</Command>
+      </PostBuild>
+      <CustomBuild Enabled="no">
+        <RebuildCommand/>
+        <CleanCommand/>
+        <BuildCommand/>
+        <PreprocessFileCommand/>
+        <SingleFileCommand/>
+        <MakefileGenerationCommand/>
+        <ThirdPartyToolName>None</ThirdPartyToolName>
+        <WorkingDirectory/>
+      </CustomBuild>
+      <AdditionalRules>
+        <CustomPostBuild/>
+        <CustomPreBuild/>
+      </AdditionalRules>
+      <Completion EnableCpp11="no" EnableCpp14="no">
+        <ClangCmpFlagsC/>
+        <ClangCmpFlags/>
+        <ClangPP/>
+        <SearchPaths/>
+      </Completion>
+    </Configuration>
+    <Configuration Name="Release" CompilerType="arm-none-eabi" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
+      <Compiler Options="-O2;-Wall" C_Options="-O2;-Wall" Assembler="" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" PCHFlags="" PCHFlagsPolicy="0">
+        <IncludePath Value="bios/samd51"/>
+        <Preprocessor Value="__SAMD51J20A__"/>
+      </Compiler>
+      <Linker Options="-TucosR_1M_256k.ld" Required="yes">
+        <Library Value="m"/>
+      </Linker>
+      <ResourceCompiler Options="" Required="no"/>
+      <General OutputFile="$(IntermediateDirectory)/$(ProjectName)" IntermediateDirectory="$(ConfigurationName)" Command="./$(ProjectName)" CommandArguments="" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="$(IntermediateDirectory)" PauseExecWhenProcTerminates="yes" IsGUIProgram="no" IsEnabled="yes"/>
+      <BuildSystem Name="Default"/>
+      <Environment EnvVarSetName="&lt;Use Defaults&gt;" DbgSetName="&lt;Use Defaults&gt;">
+        <![CDATA[]]>
+      </Environment>
+      <Debugger IsRemote="no" RemoteHostName="" RemoteHostPort="" DebuggerPath="" IsExtended="no">
+        <DebuggerSearchPaths/>
+        <PostConnectCommands/>
+        <StartupCommands/>
+      </Debugger>
+      <PreBuild/>
+      <PostBuild>
+        <Command Enabled="yes">/Applications/ARM/bin/arm-none-eabi-size $(IntermediateDirectory)/$(ProjectName)</Command>
+        <Command Enabled="yes">/Applications/ARM/bin/arm-none-eabi-objcopy -O ihex $(IntermediateDirectory)/$(ProjectName) $(IntermediateDirectory)/$(ProjectName).hex</Command>
+      </PostBuild>
+      <CustomBuild Enabled="no">
+        <RebuildCommand/>
+        <CleanCommand/>
+        <BuildCommand/>
+        <PreprocessFileCommand/>
+        <SingleFileCommand/>
+        <MakefileGenerationCommand/>
+        <ThirdPartyToolName>None</ThirdPartyToolName>
+        <WorkingDirectory/>
+      </CustomBuild>
+      <AdditionalRules>
+        <CustomPostBuild/>
+        <CustomPreBuild/>
+      </AdditionalRules>
+      <Completion EnableCpp11="no" EnableCpp14="no">
+        <ClangCmpFlagsC/>
+        <ClangCmpFlags/>
+        <ClangPP/>
+        <SearchPaths/>
+      </Completion>
+    </Configuration>
+    <Configuration Name="Release_uf2" CompilerType="arm-none-eabi" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
+      <Compiler Options="-O2;-Wall" C_Options="-O2;-Wall" Assembler="" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" PCHFlags="" PCHFlagsPolicy="0">
+        <IncludePath Value="bios/samd51"/>
+        <Preprocessor Value="__SAMD51J20A__"/>
+      </Compiler>
+      <Linker Options="-TucosR_1M_256k_uf2.ld" Required="yes">
+        <Library Value="m"/>
+      </Linker>
+      <ResourceCompiler Options="" Required="no"/>
+      <General OutputFile="$(IntermediateDirectory)/$(ProjectName)" IntermediateDirectory="$(ConfigurationName)" Command="./$(ProjectName)" CommandArguments="" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="$(IntermediateDirectory)" PauseExecWhenProcTerminates="yes" IsGUIProgram="no" IsEnabled="yes"/>
+      <BuildSystem Name="Default"/>
+      <Environment EnvVarSetName="&lt;Use Defaults&gt;" DbgSetName="&lt;Use Defaults&gt;">
+        <![CDATA[]]>
+      </Environment>
+      <Debugger IsRemote="no" RemoteHostName="" RemoteHostPort="" DebuggerPath="" IsExtended="no">
+        <DebuggerSearchPaths/>
+        <PostConnectCommands/>
+        <StartupCommands/>
+      </Debugger>
+      <PreBuild/>
+      <PostBuild>
+        <Command Enabled="yes">/Applications/ARM/bin/arm-none-eabi-size $(IntermediateDirectory)/$(ProjectName)</Command>
+        <Command Enabled="yes">/Applications/ARM/bin/arm-none-eabi-objcopy -O binary $(IntermediateDirectory)/$(ProjectName) $(IntermediateDirectory)/$(ProjectName).bin</Command>
+        <Command Enabled="yes">./uf2conv $(IntermediateDirectory)/$(ProjectName).bin $(ProjectName).uf2</Command>
+      </PostBuild>
+      <CustomBuild Enabled="no">
+        <RebuildCommand/>
+        <CleanCommand/>
+        <BuildCommand/>
+        <PreprocessFileCommand/>
+        <SingleFileCommand/>
+        <MakefileGenerationCommand/>
+        <ThirdPartyToolName>None</ThirdPartyToolName>
+        <WorkingDirectory/>
+      </CustomBuild>
+      <AdditionalRules>
+        <CustomPostBuild/>
+        <CustomPreBuild/>
+      </AdditionalRules>
+      <Completion EnableCpp11="no" EnableCpp14="no">
+        <ClangCmpFlagsC/>
+        <ClangCmpFlags/>
+        <ClangPP/>
+        <SearchPaths/>
+      </Completion>
+    </Configuration>
+  </Settings>
+</CodeLite_Project>

@@ -1,0 +1,5 @@
+#!/bin/zsh
+# /opt/local/bin/bash
+JLINKSCRIPT=rimer.jlink
+/opt/local/bin/jlink -device ATSAME53J19 -if SWD -speed 5000 -autoconnect 1 -CommanderScript $JLINKSCRIPT
+

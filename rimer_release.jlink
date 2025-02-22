@@ -1,0 +1,5 @@
+loadfile Release/rimer.hex
+r
+g
+power on
+exit
