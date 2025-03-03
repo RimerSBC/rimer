@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CodeLite_Project Name="rimer" Version="11000" InternalType="Console">
   <VirtualDirectory Name="iface">
+    <File Name="iface/iface_sd.h"/>
+    <File Name="iface/iface_sd.c"/>
     <File Name="iface/enums.h"/>
     <File Name="iface/enums.c"/>
     <File Name="iface/rimer_iface.h"/>
-    <File Name="iface/iface_sd.h"/>
     <File Name="iface/iface_eeprom.h"/>
     <File Name="iface/iface_zx80.c"/>
     <File Name="iface/iface_set.h"/>
@@ -16,7 +17,6 @@
     <File Name="iface/iface_zx80.h"/>
     <File Name="iface/iface_set.c"/>
     <File Name="iface/iface_eeprom.c"/>
-    <File Name="iface/iface_sd.c"/>
     <File Name="iface/rimer_iface.c"/>
     <File Name="iface/iface_mem.c"/>
     <File Name="iface/iface_aio.h"/>
@@ -70,6 +70,7 @@
     <File Name="basicd/bhighlight.c"/>
   </VirtualDirectory>
   <VirtualDirectory Name="inc">
+    <File Name="inc/resources.h"/>
     <File Name="inc/fat.h"/>
     <File Name="inc/commandline.h"/>
     <File Name="inc/dmactrl.h"/>

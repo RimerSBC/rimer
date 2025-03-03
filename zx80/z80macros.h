@@ -75,31 +75,6 @@
 /* Indirect (HL) and indexed (IX + d) or (IY + d) memory operands read and
  * write macros.
  */
-#if 1
-#define READ_INDIRECT_HL(x)                                             \
-	{                                                                       \
-		if (registers == register_table) {			\
-			x = READ_BYTE(HL);                                     \
-		} else {                                                        \
-			int  d;                                              \
-			READ_D(d);                                              \
-			d += HL_IX_IY;                                          \
-			x = READ_BYTE(d);                                      \
-		}                                                               \
-	}
-    
-#define WRITE_INDIRECT_HL(x)                                            \
-	{                                                                       \
-		if (registers == register_table) {			\
-			WRITE_BYTE(HL, (x));                                    \
-		} else {                                                        \
-			int     d;                                              \
-			READ_D(d);                                              \
-			d += HL_IX_IY;                                          \
-			WRITE_BYTE(d, (x));                                     \
-		}                                                               \
-	}    
-#else
 #define READ_INDIRECT_HL(x)                                             \
 	{                                                                       \
 		if (registers == register_table) {			\
@@ -107,8 +82,7 @@
 		} else {                                                        \
 			int8_t d;                                              \
 			READ_D(d);                                              \
-			/*d += HL_IX_IY;*/                                          \
-			x = READ_BYTE(HL_IX_IY+(signed char)(d));                                      \
+			x = READ_BYTE(HL_IX_IY+d);                                      \
 		}                                                               \
 	}
     
@@ -117,13 +91,11 @@
 		if (registers == register_table) {			\
 			WRITE_BYTE(HL, (x));                                    \
 		} else {                                                        \
-			signed char d;                                              \
+			int8_t d;                                              \
 			READ_D(d);                                              \
-			/*d += HL_IX_IY;*/                                          \
 			WRITE_BYTE((HL_IX_IY+d), (x));                                     \
 		}                                                               \
 	}    
-#endif
 
 /* Stack operation macros. */
 

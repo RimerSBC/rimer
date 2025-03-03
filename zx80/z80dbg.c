@@ -607,6 +607,28 @@ void zdb_process(uint16_t addr)
             regs_update(true);
             forceRedraw = REDRAW_UPDATE;
             break;
+         case 'p': /// run till memory update
+            while (keyboard_pressed())
+               taskYIELD();
+            vTaskDelay(50);
+            uint16_t tmpExAddr[16];
+            read_address("Run to change:", &zdbState.dumpAddress);
+            vTaskDelay(200);
+            uint8_t mVal = z80mem[zdbState.dumpAddress];
+            while (!keyboard_getch(&c))
+            {
+               for (uint8_t i=sizeof(tmpExAddr)/2-1;i;i--)
+                   tmpExAddr[i] = tmpExAddr[i-1];
+               tmpExAddr[0] = z80state.pc;
+               TC0_Handler();
+               if (mVal != z80mem[zdbState.dumpAddress])
+                   break;
+               taskYIELD();
+            }
+            regs_update(true);
+            zdbState.lookUpDispAddr = zdbState.lookUpAddress = tmpExAddr[8];
+            forceRedraw = REDRAW_LOOKUP;
+            break;            
          default:
             break;
          }

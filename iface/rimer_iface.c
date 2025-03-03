@@ -39,7 +39,7 @@
 #include "iface_sio.h"
 #include "iface_zx80.h"
 
-void interface_registstration(void)
+void interface_register(void)
 {
     add_interface(&ifaceSetup);
     add_interface(&ifaceAIO);

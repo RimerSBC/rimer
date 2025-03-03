@@ -24,7 +24,7 @@
  * @file main.c
  * @author Sergey Sanders
  * @date 24 March 2024
- * @brief ucosR 
+ * @brief Rimer App 
  * ATSAME(D)5 chip
  * @see ATSAMD51 Datasheet
  */
@@ -36,6 +36,7 @@
 
 int main(void)
 {
+    AppGreeting = "-- Rimer App V0.60";
     bsp_init();
     xTaskCreate(ucosR_task, "ucosR", configMINIMAL_STACK_SIZE, NULL, 2, NULL);
     vTaskStartScheduler();

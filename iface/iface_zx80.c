@@ -3,21 +3,21 @@
  * sergey@sesadesign.com
  * -----------------------------------------------------------------------------
  * Licensed under Creative Commons Attribution-NonCommercial-ShareAlike 4.0
- * International (CC BY-NC-SA 4.0). 
- * 
+ * International (CC BY-NC-SA 4.0).
+ *
  * You are free to:
  *  - Share: Copy and redistribute the material.
  *  - Adapt: Remix, transform, and build upon the material.
- * 
+ *
  * Under the following terms:
  *  - Attribution: Give appropriate credit and indicate changes.
  *  - NonCommercial: Do not use for commercial purposes.
  *  - ShareAlike: Distribute under the same license.
- * 
+ *
  * DISCLAIMER: This work is provided "as is" without any guarantees. The authors
  * aren’t responsible for any issues, damages, or claims that come up from using
  * it. Use at your own risk!
- * 
+ *
  * Full license: http://creativecommons.org/licenses/by-nc-sa/4.0/
  * ---------------------------------------------------------------------------*/
 /**
@@ -44,7 +44,7 @@
 #include "z80dbg.h"
 
 #define ZX_ROM_DIR "/zx80"               // all emulator's files will be located here
-#define ZX_ROM_FILE "rom48.bin"          // ZX Spectrum 48k ROM file
+#define ZX_ROM_FILE "48.rom"             // ZX Spectrum 48k ROM file
 #define ZX_TEST_ROM_FILE "zxTestRom.rom" // test ROM file
 char path[256];
 static bool iface_zx80_init(bool verbose);
@@ -163,12 +163,22 @@ static cmd_err_t zx_load(_cl_param_t *sParam)
    } fType = SNAP_TYPE_NONE;
    FIL progFile;
    unsigned int bytesRead;
-   char *ext = sParam->argv[0];
+   char *ext;
+   char *fileName;
+   bool debug;
    if (!sParam->argc)
    {
       return CMD_MISSING_PARAM;
    }
-
+   ext = sParam->argv[0];
+   if (ext[0] == '-' && ext[1] == 'd')
+   {
+      if (sParam->argc < 2)
+         return CMD_MISSING_PARAM;
+      debug = true;
+      ext = sParam->argv[1];
+   }
+   fileName = ext;
    while (*ext && (*ext != '.'))
       ext++;
    if (*ext++)
@@ -191,16 +201,14 @@ static cmd_err_t zx_load(_cl_param_t *sParam)
          return CMD_NO_ERR;
    }
 
-   if ((f_open(&progFile, sParam->argv[0], FA_READ) != FR_OK))
+   if ((f_open(&progFile, fileName, FA_READ) != FR_OK))
    {
-      tprintf("File sd:%s not found!\n", sParam->argv[0]);
+      tprintf("File sd:%s not found!\n", fileName);
       return CMD_NO_ERR;
    }
 
-   zxKeyboard = true;
    if (f_read(&progFile, frameBuffer, FB_SIZE, &bytesRead) != FR_OK) // using frame buffer for temporary storage
    {
-      // tprintf("Error reading prog file\n");
       f_close(&progFile);
       return CMD_NO_ERR;
    }
@@ -211,6 +219,14 @@ static cmd_err_t zx_load(_cl_param_t *sParam)
       load_snapshot_z80(frameBuffer);
    else
       load_snapshot_sna(frameBuffer);
+   if (debug)
+   {
+      z80dbg(z80state.pc);
+      vTaskDelay(60);
+      keyboard_flush();
+      return CMD_NO_ERR;
+   }
+   zxKeyboard = true;
    lcd_cls(0);
    vTaskSuspend(xuTermTask);
    z80cpu_run();

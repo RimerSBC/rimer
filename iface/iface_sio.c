@@ -168,12 +168,12 @@ static cmd_err_t cmd_sio_power(_cl_param_t *sParam)
       switch (sParam->argc)
       {
       case 1:
-         set_io_power(sioConf.chan, strtol(sParam->argv[0], NULL, 0) ? 1 : 0);
+         set_io_power(sioConf.chan, tget_enum(sParam->argv[0],EnumOnOff));
          break;
       case 2:
          uint8_t chan = (uint8_t)strtol(sParam->argv[0], NULL, 0);
          if (chan > 2) chan = 2;
-         set_io_power(chan, strtol(sParam->argv[1], NULL, 0) ? 1 : 0);
+         set_io_power(chan, tget_enum(sParam->argv[1],EnumOnOff));
          break;
       default:
          break;

@@ -1,30 +1,30 @@
-/**
- * Copyright (c) 2024 Sergey Sanders
+/**-----------------------------------------------------------------------------
+ * Copyright (c) 2025 Sergey Sanders
+ * sergey@sesadesign.com
+ * -----------------------------------------------------------------------------
+ * Licensed under Creative Commons Attribution-NonCommercial-ShareAlike 4.0
+ * International (CC BY-NC-SA 4.0). 
  * 
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
+ * You are free to:
+ *  - Share: Copy and redistribute the material.
+ *  - Adapt: Remix, transform, and build upon the material.
  * 
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
+ * Under the following terms:
+ *  - Attribution: Give appropriate credit and indicate changes.
+ *  - NonCommercial: Do not use for commercial purposes.
+ *  - ShareAlike: Distribute under the same license.
  * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */
+ * DISCLAIMER: This work is provided "as is" without any guarantees. The authors
+ * aren’t responsible for any issues, damages, or claims that come up from using
+ * it. Use at your own risk!
+ * 
+ * Full license: http://creativecommons.org/licenses/by-nc-sa/4.0/
+ * ---------------------------------------------------------------------------*/
 
 #ifndef _CMD_FAT_CTRL_INCLUDED
 #define _CMD_FAT_CTRL_INCLUDED
 
-#define SD_MMC_BLOCK_SIZE 512
+#include "sd_mmc.h"
 
 #define SD_PIN_MCDA0    PORT_PA09
 #define SD_PIN_MCDA1    PORT_PA10
@@ -40,6 +40,7 @@
 
 void fat_task(void* vParam );
 bool sd_info_print(uint8_t slot);
+extern bool FATReady;
 extern uint8_t sd_mmc_block[SD_MMC_BLOCK_SIZE];
 
 #endif //_CMD_FAT_CTRL_INCLUDED
