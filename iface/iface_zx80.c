@@ -165,7 +165,7 @@ static cmd_err_t zx_load(_cl_param_t *sParam)
    unsigned int bytesRead;
    char *ext;
    char *fileName;
-   bool debug;
+   bool debug = false;
    if (!sParam->argc)
    {
       return CMD_MISSING_PARAM;

@@ -53,20 +53,21 @@ static cmd_err_t cmd_fat_pwd(_cl_param_t *sParam);
 static cmd_err_t cmd_fat_rm(_cl_param_t *sParam);
 static cmd_err_t cmd_fat_cat(_cl_param_t *sParam);
 
-    const _iface_t ifaceSD = {.name = "sd",
-                              .prompt = NULL,
-                              .desc = "sd card FAT control",
-                              .init = iface_sd_init,
-                              .cmdList = {
-                                  {.name = "sdi", .desc = "sd card info", .func = cmd_fat_sdi},
-                                  {.name = "sdrd", .desc = "sd card read : block count", .func = cmd_fat_block_read},
-                                  {.name = "ls", .desc = "directory list", .func = cmd_fat_ls},
-                                  {.name = "cd", .desc = "change directory", .func = cmd_fat_cd},
-                                  {.name = "pwd", .desc = "get working directory", .func = cmd_fat_pwd},
-                                  {.name = "rm", .desc = "remove file(s)", .func = cmd_fat_rm},
-                                  {.name = "cat", .desc = "displays file contents", .func = cmd_fat_cat},
-                                  {.name = NULL, .func = NULL},
-                              } };
+const _iface_t ifaceSD = {
+    .name = "sd",
+    .prompt = NULL,
+    .desc = "sd card FAT control",
+    .init = iface_sd_init,
+    .cmdList = {
+        {.name = "sdi", .desc = "sd card info", .func = cmd_fat_sdi},
+        {.name = "sdrd", .desc = "sd card read : block count", .func = cmd_fat_block_read},
+        {.name = "ls", .desc = "directory list", .func = cmd_fat_ls},
+        {.name = "cd", .desc = "change directory", .func = cmd_fat_cd},
+        {.name = "pwd", .desc = "get working directory", .func = cmd_fat_pwd},
+        {.name = "rm", .desc = "remove file(s)", .func = cmd_fat_rm},
+        {.name = "cat", .desc = "displays file contents", .func = cmd_fat_cat},
+        {.name = NULL, .func = NULL},
+    }};
 
 static bool iface_sd_init(bool verbose)
 {
@@ -140,8 +141,8 @@ char *cmd_fat_ls(_cl_param_t *sParam)
    {
       if (lineCnt > uTerm.lines - 2)
       {
-         tprintf("\e[a\e[33mscroll?\e[r");
-         if (!keyboard_wait(" "))
+         tprintf("\e[a\e[33mscroll(y/n)?\e[r");
+         if (keyboard_wait("yY"))
             lineCnt = 0;
          tprintf("\e[1K\r");
          if (lineCnt)
@@ -215,13 +216,22 @@ static cmd_err_t cmd_fat_cat(_cl_param_t *sParam)
    UINT br;
    char ch[16];
    bool verbose = false;
+   uint8_t n = 0, lCount = 0;
    char *fileName;
    if (!sParam->argc)
       return CMD_MISSING_PARAM;
    if (*sParam->argv[0] == '-') // the first param is an option list
    {
-      if (strchr(sParam->argv[0], 'v'))
-         verbose = true;
+      while (*++sParam->argv[0] && !n)
+         switch (*sParam->argv[0])
+         {
+         case 'v':
+            verbose = true;
+            break;
+         case 'n':
+            n = (uint8_t)strtol(++sParam->argv[0], NULL, 0);
+            break;
+         }
       if (sParam->argc < 2)
          return CMD_MISSING_PARAM;
       fileName = sParam->argv[1];
@@ -237,6 +247,25 @@ static cmd_err_t cmd_fat_cat(_cl_param_t *sParam)
          switch (ch[i])
          {
          case '\n':
+            lCount++;
+            if (lCount == n)
+            {
+               stdio->putch(ch[i]);
+               return CMD_NO_ERR;
+            }
+            if (lCount > uTerm.lines - 3)
+            {
+               tprintf("\n\e[a\e[33mscroll(y/n)?\e[r");
+               if (!keyboard_wait("yY"))
+                  i = br;
+               tprintf("\e[1K\r");
+               lCount = 0;
+               if (i == br)
+               {
+                  f_close(&catFile);
+                  return CMD_NO_ERR;
+               }
+            }
          case ' ' ... '~':
             stdio->putch(ch[i]);
             break;

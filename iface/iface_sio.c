@@ -3,21 +3,21 @@
  * sergey@sesadesign.com
  * -----------------------------------------------------------------------------
  * Licensed under Creative Commons Attribution-NonCommercial-ShareAlike 4.0
- * International (CC BY-NC-SA 4.0). 
- * 
+ * International (CC BY-NC-SA 4.0).
+ *
  * You are free to:
  *  - Share: Copy and redistribute the material.
  *  - Adapt: Remix, transform, and build upon the material.
- * 
+ *
  * Under the following terms:
  *  - Attribution: Give appropriate credit and indicate changes.
  *  - NonCommercial: Do not use for commercial purposes.
  *  - ShareAlike: Distribute under the same license.
- * 
+ *
  * DISCLAIMER: This work is provided "as is" without any guarantees. The authors
  * aren’t responsible for any issues, damages, or claims that come up from using
  * it. Use at your own risk!
- * 
+ *
  * Full license: http://creativecommons.org/licenses/by-nc-sa/4.0/
  * ---------------------------------------------------------------------------*/
 
@@ -168,12 +168,13 @@ static cmd_err_t cmd_sio_power(_cl_param_t *sParam)
       switch (sParam->argc)
       {
       case 1:
-         set_io_power(sioConf.chan, tget_enum(sParam->argv[0],EnumOnOff));
+         set_io_power(sioConf.chan, tget_enum(sParam->argv[0], EnumOnOff));
          break;
       case 2:
          uint8_t chan = (uint8_t)strtol(sParam->argv[0], NULL, 0);
-         if (chan > 2) chan = 2;
-         set_io_power(chan, tget_enum(sParam->argv[1],EnumOnOff));
+         if (chan > 2)
+            chan = 2;
+         set_io_power(chan, tget_enum(sParam->argv[1], EnumOnOff));
          break;
       default:
          break;
@@ -245,6 +246,7 @@ static cmd_err_t cmd_sio_channel(_cl_param_t *sParam)
       sioConf.chan = (uint8_t)strtol(sParam->argv[0], NULL, 0);
       if (sioConf.chan > 2)
          sioConf.chan = 0;
+      set_mode(sioConf.mode[sioConf.chan]);
       prompt_update();
    }
    else
@@ -254,18 +256,32 @@ static cmd_err_t cmd_sio_channel(_cl_param_t *sParam)
 
 static cmd_err_t cmd_sio_mode(_cl_param_t *sParam)
 {
+   char *paramMode;
+   bool verbose = true;
    if (sParam->argc)
    {
-      //uint8_t mode = (uint8_t)strtol(sParam->argv[0], NULL, 0) & 0x03;
-      uint8_t mode = tget_enum(sParam->argv[0], EnumSerPort);
+      if (*sParam->argv[0] == '-')
+      {
+         if (sParam->argv[0][1] != 'v')
+            return CMD_UNKNOWN_OPTION;
+        if (sParam->argc < 2) return CMD_MISSING_PARAM;
+         paramMode = sParam->argv[1];
+      }
+      else
+      {
+         paramMode = sParam->argv[0];
+         verbose = false;
+      }
+      uint8_t mode = tget_enum(paramMode, EnumSerPort);
       if ((mode == SIO_MODE_SPI) && (sioConf.chan == 2))
       {
          tprintf("No SPI on channel 2\n");
-         return CMD_NO_ERR;
+         return CMD_ERR_EMPTY;
       }
       set_mode(mode);
    }
-   tprintf("  Chan: %d\n  Mode: %s\n  Baud: %d\n", sioConf.chan, mName[sioConf.mode[sioConf.chan]], sioConf.baud[sioConf.chan]);
+   if (verbose)
+      tprintf("  Chan: %d\n  Mode: %s\n  Baud: %d\n", sioConf.chan, mName[sioConf.mode[sioConf.chan]], sioConf.baud[sioConf.chan]);
    return CMD_NO_ERR;
 }
 
@@ -314,7 +330,10 @@ static cmd_err_t cmd_sio_tx(_cl_param_t *sParam)
       for (i = 0; i < sParam->argc && i < sizeof(sioFifo[sioConf.chan].data); i++)
          sioFifo[sioConf.chan].data[i] = (uint8_t)strtol(sParam->argv[i], NULL, 0);
       if ((err = i2c_bare_write(port, sioFifo[sioConf.chan].data[0] << 1, &sioFifo[sioConf.chan].data[1], sParam->argc - 1)) != I2C_ERR_NONE)
+      {
          tprintf("E:I2C error[%d]\n", err);
+         return CMD_ERR_EMPTY;
+      }
       else
          tprintf("%d bytes sent.\n", sParam->argc - 1);
       break;
@@ -387,7 +406,10 @@ static cmd_err_t cmd_sio_rx(_cl_param_t *sParam)
       else
          err = i2c_read(port, DevID, addr, sioFifo[sioConf.chan].data, size);
       if (err)
-         tprintf("E: I2C error[%d]\n", err);
+         {
+             tprintf("E: I2C error[%d]\n", err);
+             return CMD_ERR_EMPTY;
+         }
       else
          for (i = 0; i < size; i++)
             tprintf("0x%2x ", sioFifo[sioConf.chan].data[i]);
