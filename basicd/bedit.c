@@ -211,7 +211,7 @@ cmd_err_t basic_exe(_cl_param_t *sParam)
   text_cls();
   BasicLineZero = pvPortMalloc(sizeof(_bas_line_t));
   memset(BasicLineZero,0x00,sizeof(_bas_line_t));
-  b_printf("Basic D\n Version 0.2b\n");
+  b_printf("Basic D\n Version 0.3b\n");
   b_printf("Free mem: %d bytes\n\n", xPortGetFreeHeapSize());
   while (!done)
     {
@@ -230,6 +230,7 @@ cmd_err_t basic_exe(_cl_param_t *sParam)
   stdio = lastStream;
   uTerm = tmpTerm;
   vTaskResume(xuTermTask);
+  vTaskDelay(50);
   text_cls();
   return CMD_NO_ERR;
 }

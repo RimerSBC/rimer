@@ -149,7 +149,7 @@ void rpn_print_queue(bool newline)
         case VAR_TYPE_LOOP:
             b_printf("%.02f",RPNQueue.value[i].var.f);
             break;
-        case VAR_TYPE_INTEGER:
+        case VAR_TYPE_INT:
         case VAR_TYPE_BYTE:
         case VAR_TYPE_WORD:
             b_printf("%d",RPNQueue.value[i].var.i);
@@ -209,8 +209,8 @@ _bas_err_e rpn_eval(uint8_t op)
         if ((value[0].type & VAR_TYPE_FLOAT) || (value[1].type & VAR_TYPE_FLOAT)) // treat as float if one of the operands is float.
         {
             doFloat = true;
-            if (value[0].type & VAR_TYPE_INTEGER) value[0] = RPN_FLOAT(value[0].var.i);
-            if (value[1].type & VAR_TYPE_INTEGER) value[1] = RPN_FLOAT(value[1].var.i);
+            if (value[0].type & VAR_TYPE_INT) value[0] = RPN_FLOAT(value[0].var.i);
+            if (value[1].type & VAR_TYPE_INT) value[1] = RPN_FLOAT(value[1].var.i);
         }
     }
     switch(op)
@@ -329,11 +329,16 @@ _bas_err_e rpn_eval(uint8_t op)
         if (value[0].type == VAR_TYPE_STRING) return BasicError = BASIC_ERR_TYPE_MISMATCH;
         value[0].type = VAR_TYPE_BOOL;
     }
+    if ((value[1].type == VAR_TYPE_WORD) && (value[0].type != VAR_TYPE_BOOL))
+    {
+        value[0].type = VAR_TYPE_WORD;
+        value[0].var.i = (uint32_t)value[0].var.i & 0x0ffff;
+    }
     if ((value[1].type == VAR_TYPE_BYTE) && (value[0].type != VAR_TYPE_BOOL))
     {
         value[0].type = VAR_TYPE_BYTE;
         value[0].var.i = (uint32_t)value[0].var.i & 0x0ff;
-    }
+    }    
     rpn_push_queue(value[0]);
     return BasicError = BASIC_ERR_NONE;
 }

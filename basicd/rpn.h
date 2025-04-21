@@ -58,19 +58,21 @@ typedef enum
     VAR_TYPE_DEFFN = 0x08,      // Pointer to a defined function
     VAR_TYPE_DEFFN_STRING,      // multi-byte variables
     VAR_TYPE_DEFFN_FLOAT,
-    VAR_TYPE_DEFFN_INTEGER,
+    VAR_TYPE_DEFFN_INT,
+    VAR_TYPE_DEFFN_WORD,
     VAR_TYPE_DEFFN_BYTE,   
     VAR_TYPE_ARRAY = 0x10,      // Pointer to an array
     VAR_TYPE_ARRAY_STRING,      // multi-byte variables
     VAR_TYPE_ARRAY_FLOAT,
-    VAR_TYPE_ARRAY_INTEGER,
+    VAR_TYPE_ARRAY_INT,
+    VAR_TYPE_ARRAY_WORD,
     VAR_TYPE_ARRAY_BYTE,
     VAR_TYPE_STRING = 0x20,     // string,  variable name ended with '$'
     VAR_TYPE_FLOAT = 0x40,      // numeric variables
     VAR_TYPE_LOOP,              // for loop variable, .size points to the loop descriptor  
-    VAR_TYPE_INTEGER = 0x80,    // integer, variable name ended with '#'
-    VAR_TYPE_BYTE,              // byte,  variable name ended with '_'
-    VAR_TYPE_WORD,              // 16 bit unsigned  
+    VAR_TYPE_INT = 0x80,        // signed double word, variable name ended with 'i'
+    VAR_TYPE_WORD,              // word,  variable name ended with 'w'
+    VAR_TYPE_BYTE,              // byte,  variable name ended with 'b'
     VAR_TYPE_BOOL,              // boolean
 } _var_type_e;
 
@@ -89,7 +91,7 @@ typedef struct// __attribute ((packed,aligned(4)))
 } _rpn_type_t;
 
 #define RPN_FLOAT(x)    ((_rpn_type_t){.type = VAR_TYPE_FLOAT,.var.f = x})
-#define RPN_INT(x)      ((_rpn_type_t){.type = VAR_TYPE_INTEGER,.var.i = x})
+#define RPN_INT(x)      ((_rpn_type_t){.type = VAR_TYPE_INT,.var.i = x})
 #define RPN_BYTE(x)     ((_rpn_type_t){.type = VAR_TYPE_BYTE,.var.i = x})
 #define RPN_WORD(x)     ((_rpn_type_t){.type = VAR_TYPE_WORD,.var.i = x})
 #define RPN_STR(x)      ((_rpn_type_t){.type = VAR_TYPE_STRING,.var.str = x})

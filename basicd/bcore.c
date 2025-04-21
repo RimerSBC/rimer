@@ -3,21 +3,21 @@
  * sergey@sesadesign.com
  * -----------------------------------------------------------------------------
  * Licensed under Creative Commons Attribution-NonCommercial-ShareAlike 4.0
- * International (CC BY-NC-SA 4.0). 
- * 
+ * International (CC BY-NC-SA 4.0).
+ *
  * You are free to:
  *  - Share: Copy and redistribute the material.
  *  - Adapt: Remix, transform, and build upon the material.
- * 
+ *
  * Under the following terms:
  *  - Attribution: Give appropriate credit and indicate changes.
  *  - NonCommercial: Do not use for commercial purposes.
  *  - ShareAlike: Distribute under the same license.
- * 
+ *
  * DISCLAIMER: This work is provided "as is" without any guarantees. The authors
  * aren’t responsible for any issues, damages, or claims that come up from using
  * it. Use at your own risk!
- * 
+ *
  * Full license: http://creativecommons.org/licenses/by-nc-sa/4.0/
  * ---------------------------------------------------------------------------*/
 
@@ -102,9 +102,10 @@ _bas_var_t *var_get(char *name)
 
 _bas_var_t *var_add(char *name)
 {
-   _bas_var_t *varPtr = BasicVars;                           // BasicConstants;
-   uint8_t lastChar = name[strlen(name) - 1];                // get var type: xxx - number(float),xxx$ - string, xxx# integer
-   uint16_t varSize = sizeof(_bas_var_t) + strlen(name) + 1; // include string terminator
+   _bas_var_t *varPtr = BasicVars; // BasicConstants;
+   uint8_t nameLen = strlen(name);
+   char *typeQ = (char *)(name + nameLen - 1);          // get var type qualifier: xxx - number(float),xxx$ - string, xxx.i/w/b integer/word/byte
+   uint16_t varSize = sizeof(_bas_var_t) + nameLen + 1; // include string terminator
    if (varSize & 0x3)
       varSize = (varSize & ~(0x03)) + 4; // allign to 4
    if (!BasicVars)                       // new var
@@ -126,20 +127,32 @@ _bas_var_t *var_add(char *name)
    }
    varPtr->next = NULL; ///--- already null;
    strcpy(varPtr->name, name);
-   switch (lastChar)
-   {
-   case '$':
-      varPtr->value.type = VAR_TYPE_STRING;
-      break;
-   case '_':
-      varPtr->value.type = VAR_TYPE_BYTE;
-      break;
-   case '#':
-      varPtr->value.type = VAR_TYPE_INTEGER;
-      break;
-   default:
-      varPtr->value.type = VAR_TYPE_FLOAT;
-   }
+   if (nameLen == 1)
+      varPtr->value.type = VAR_TYPE_FLOAT; // single character variable is always float
+   else
+      switch (*typeQ--)
+      {
+      case '$':
+         varPtr->value.type = VAR_TYPE_STRING;
+         break;
+      case '_':
+         varPtr->value.type = VAR_TYPE_BYTE;
+         break;
+      case '#':
+         varPtr->value.type = VAR_TYPE_INT;
+         break;
+      case 'b':
+         if (*typeQ == '.') varPtr->value.type = VAR_TYPE_BYTE;
+         break;
+      case 'w':
+         if (*typeQ == '.') varPtr->value.type = VAR_TYPE_WORD;
+         break;
+      case 'i':
+         if (*typeQ == '.') varPtr->value.type = VAR_TYPE_INT;
+         break;
+      default:
+         varPtr->value.type = VAR_TYPE_FLOAT;
+      }
    varPtr->param.size[0] = 0;
    return varPtr;
 }
@@ -438,22 +451,61 @@ _bas_err_e __clear(_rpn_type_t *param)
    return BasicError = BASIC_ERR_NONE;
 }
 
-_bas_err_e __list(_rpn_type_t *param)
+void bas_list(uint16_t begin, uint16_t count)
 {
    char str[8];
+   // uint8_t lineCnt=0;
    _bas_line_t *bL = BasicProg;
+   if (bL == NULL) return;
    text_cls();
-   while (bL != NULL)
+   while (bL->next) // find the line
    {
+      if (bL->number >= begin) break;
+      bL = bL->next;
+   }
+   while (bL != NULL && count)
+   {
+      if (uTerm.cursorLine > uTerm.lines - 3)
+      {
+         b_printf("more(y/n)?");
+         if (keyboard_wait("yY"))
+            text_cls();
+         else
+         {
+            uTerm.cursorCol = 0;
+            b_printf("          ");
+            uTerm.cursorCol = 0;
+            return;
+         }
+      }
       if (bL->number)
          b_sprintf(str, sizeof(str), "%d ", bL->number);
       highlight(str); // print line number
       highlight((char *)basic_line_totext(bL->string));
       if (uTerm.cursorCol)
+      {
          b_printf("\n");
-      //    b_printf("%d %s\n",bL->number,bL->string);
+         //  lineCnt++;
+      }
       bL = bL->next;
+      count--;
    }
+}
+
+_bas_err_e __list(_rpn_type_t *param)
+{
+   uint16_t progLine = 0;
+   uint16_t lineCount = 32768;
+   if (param->var.i && (token_eval_expression(0) == BASIC_ERR_NONE))
+   {
+      _rpn_type_t *var = rpn_peek_queue(true);
+      if (var->type >= VAR_TYPE_FLOAT)
+         progLine = var->type < VAR_TYPE_INT ? (uint16_t)var->var.f : (uint16_t)var->var.i;
+      var = rpn_peek_queue(false);
+      if (var->type >= VAR_TYPE_FLOAT)
+         lineCount = var->type < VAR_TYPE_INT ? (uint16_t)var->var.f : (uint16_t)var->var.i;
+   }
+   bas_list(progLine, lineCount);
    return BasicError = BASIC_ERR_NONE;
 }
 
@@ -565,7 +617,7 @@ bool basic_printf(_rpn_type_t *var)
    case VAR_TYPE_LOOP:
       b_printf("%s", tftoa(var->var.f, 0));
       break;
-   case VAR_TYPE_INTEGER:
+   case VAR_TYPE_INT:
    case VAR_TYPE_BYTE:
    case VAR_TYPE_WORD:
       b_printf("%d", var->var.i);
@@ -675,15 +727,12 @@ _bas_err_e __run(_rpn_type_t *param)
    }
    else
    {
-      _rpn_type_t *var;
       uint16_t progLine = 0;
       if (param->var.i && (token_eval_expression(0) == BASIC_ERR_NONE))
       {
-         var = rpn_peek_queue(true);
-         if (var->type < VAR_TYPE_FLOAT)
-            progLine = 0;
-         else
-            progLine = var->type < VAR_TYPE_INTEGER ? (uint16_t)var->var.f : (uint16_t)var->var.i;
+         _rpn_type_t *var = rpn_peek_queue(true);
+         if (var->type >= VAR_TYPE_FLOAT)
+            progLine = var->type < VAR_TYPE_INT ? (uint16_t)var->var.f : (uint16_t)var->var.i;
       }
       bL = BasicProg;
       if (progLine)
@@ -699,7 +748,8 @@ _bas_err_e __run(_rpn_type_t *param)
       //__clear(NULL);
       ExecLine.state = PROG_STATE_RUN;
       BasicStat = BASIC_STAT_CONT;
-      return BasicError = BASIC_ERR_NONE; // will continue from the "command line" instance
+      if (param->type != VAR_TYPE_WORD) // call from system
+        return BasicError = BASIC_ERR_NONE; // will continue from the "command line" instance
    }
    ExecLine.statement = 0;
    keyboard_break(); // skip previous breaks
@@ -855,7 +905,7 @@ _bas_err_e __sys(_rpn_type_t *param)
       case VAR_TYPE_LOOP:
          progVar->value.var.f = atof(response_token);
          break;
-      case VAR_TYPE_INTEGER:
+      case VAR_TYPE_INT:
          progVar->value.var.i = (int32_t)strtol(response_token, NULL, 0);
          break;
       case VAR_TYPE_WORD:
@@ -924,17 +974,19 @@ void prog_load(char *progFileName)
 
 void prog_run(uint16_t lineNumber)
 {
-   _rpn_type_t lNum = {.type = VAR_TYPE_INTEGER, .var.i = lineNumber};
-
+   _rpn_type_t lNum = {.type = VAR_TYPE_WORD, .var.i = lineNumber};
    _terminal_t tmpTerm = uTerm;
    _stream_io_t *lastStream = stdio;
    vTaskSuspend(xuTermTask);
-   vTaskDelay(50);
+   taskYIELD();
    stdio = &basicStream;
    uTerm.cursorEn = false;
    ExecLine.state = PROG_STATE_NEW;
    __run(&lNum);
+   taskYIELD();
    stdio = lastStream;
+   tmpTerm.cursorLine = uTerm.cursorLine;
+   tmpTerm.cursorCol = uTerm.cursorCol;
    uTerm = tmpTerm;
    vTaskResume(xuTermTask);
 }
@@ -974,20 +1026,20 @@ _bas_err_e array_set(char *name, bool init) // set array elements
           (var->value.type != VAR_TYPE_ARRAY_STRING)) // two dimentional array
       {
          dimPtr[0] =
-             (uint16_t)((dimVar->type & VAR_TYPE_FLOAT) ? dimVar->var.f : (dimVar->type & VAR_TYPE_INTEGER) ? dimVar->var.i :
-                                                                                                              0);
+             (uint16_t)((dimVar->type & VAR_TYPE_FLOAT) ? dimVar->var.f : (dimVar->type & VAR_TYPE_INT) ? dimVar->var.i :
+                                                                                                          0);
          if (dimPtr[0] >= var->param.size[1])
             return BasicError = BASIC_ERR_ARRAY_OUTOFRANGE;
          if ((dimVar = rpn_pull_queue())->type == VAR_TYPE_NONE)
             return BasicError = BASIC_ERR_ARRAY_DIMENTION;
          dimPtr[1] =
-             (uint16_t)((dimVar->type & VAR_TYPE_FLOAT) ? dimVar->var.f : (dimVar->type & VAR_TYPE_INTEGER) ? dimVar->var.i :
-                                                                                                              0);
+             (uint16_t)((dimVar->type & VAR_TYPE_FLOAT) ? dimVar->var.f : (dimVar->type & VAR_TYPE_INT) ? dimVar->var.i :
+                                                                                                          0);
       }
       else
          dimPtr[0] =
-             (uint16_t)((dimVar->type & VAR_TYPE_FLOAT) ? dimVar->var.f : (dimVar->type & VAR_TYPE_INTEGER) ? dimVar->var.i :
-                                                                                                              0);
+             (uint16_t)((dimVar->type & VAR_TYPE_FLOAT) ? dimVar->var.f : (dimVar->type & VAR_TYPE_INT) ? dimVar->var.i :
+                                                                                                          0);
       if (dimPtr[0] >= var->param.size[0])
          return BasicError = BASIC_ERR_ARRAY_OUTOFRANGE;
       if ((var->value.type != VAR_TYPE_ARRAY_STRING) &&
@@ -1004,7 +1056,8 @@ _bas_err_e array_set(char *name, bool init) // set array elements
    uint32_t arrayLimit =
        var->param.size[0] * var->param.size[1] +
        ((var->value.type == VAR_TYPE_ARRAY_STRING) ? 0 : var->param.size[0]);
-   uint8_t dSize = var->value.type == VAR_TYPE_ARRAY_STRING ? var->param.size[1] : (var->value.type == VAR_TYPE_ARRAY_BYTE ? 1 : 4);
+   uint8_t dSize = var->value.type == VAR_TYPE_ARRAY_STRING ? var->param.size[1] : (var->value.type == VAR_TYPE_ARRAY_BYTE ? 1 : var->value.type == VAR_TYPE_ARRAY_WORD ? 2 :
+                                                                                                                                                                          4);
    void *data = var->value.var.array + arrayPtr * dSize;
    for (; arrayPtr < arrayLimit; arrayPtr++)
    {
@@ -1017,7 +1070,11 @@ _bas_err_e array_set(char *name, bool init) // set array elements
          *(uint8_t *)data =
              (uint8_t)(dimVar->type & VAR_TYPE_FLOAT ? dimVar->var.f : dimVar->var.i);
          break;
-      case VAR_TYPE_ARRAY_INTEGER:
+      case VAR_TYPE_ARRAY_WORD:
+         *(uint16_t *)data =
+             (uint16_t)(dimVar->type & VAR_TYPE_FLOAT ? dimVar->var.f : dimVar->var.i);
+         break;
+      case VAR_TYPE_ARRAY_INT:
          *(int32_t *)data = (int32_t)(dimVar->type & VAR_TYPE_FLOAT ? dimVar->var.f : dimVar->var.i);
          break;
       case VAR_TYPE_ARRAY_FLOAT:

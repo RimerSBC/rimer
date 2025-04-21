@@ -153,7 +153,7 @@ static _bas_err_e __array(_rpn_type_t *param)
         if ((var = rpn_peek_queue(false))->type  == VAR_TYPE_NONE) return BasicError = BASIC_ERR_ARRAY_DIMENTION;
         if (!var->type || (var->type < VAR_TYPE_FLOAT)) 
             return BasicError = BASIC_ERR_TYPE_MISMATCH;
-        tmpArrayPtr = (var->type < VAR_TYPE_INTEGER) ? (uint16_t)var->var.f : (uint16_t)var->var.i;
+        tmpArrayPtr = (var->type < VAR_TYPE_INT) ? (uint16_t)var->var.f : (uint16_t)var->var.i;
         if (tmpArrayPtr >= array->param.size[i]) // check range
             return BasicError = BASIC_ERR_ARRAY_OUTOFRANGE;
         arrayPtr = arrayPtr*array->param.size[1] + tmpArrayPtr;
@@ -163,13 +163,16 @@ static _bas_err_e __array(_rpn_type_t *param)
     if (stringArray)
         data = array->value.var.array + arrayPtr*array->param.size[1];
     else
-        data = array->value.var.array + arrayPtr*(array->value.type == VAR_TYPE_ARRAY_BYTE ? 1 : 4);
+        data = array->value.var.array + arrayPtr*(array->value.type == VAR_TYPE_ARRAY_BYTE ? 1 : array->value.type == VAR_TYPE_ARRAY_WORD ? 2 : 4);
     switch (array->value.type)
     {
     case VAR_TYPE_ARRAY_BYTE:
         rpn_push_queue(RPN_INT(*(uint8_t *)data));
         break;
-    case VAR_TYPE_ARRAY_INTEGER:
+    case VAR_TYPE_ARRAY_WORD:
+        rpn_push_queue(RPN_INT(*(uint16_t *)data));
+        break;
+    case VAR_TYPE_ARRAY_INT:
         rpn_push_queue(RPN_INT(*(int32_t *)data));
         break;
     case VAR_TYPE_ARRAY_FLOAT:
@@ -214,7 +217,7 @@ static _bas_err_e __deffn(_rpn_type_t *param)
 static _bas_err_e __peek(_rpn_type_t *p1)
 {
     uint32_t data;
-    if (p1->type != VAR_TYPE_INTEGER) return BasicError = BASIC_ERR_TYPE_MISMATCH;
+    if (p1->type != VAR_TYPE_INT) return BasicError = BASIC_ERR_TYPE_MISMATCH;
     memcpy(&data,(uint8_t *)(p1->var.w),sizeof(data));
     rpn_push_queue(RPN_INT(data));
     return BasicError = BASIC_ERR_NONE;
@@ -222,7 +225,7 @@ static _bas_err_e __peek(_rpn_type_t *p1)
 static _bas_err_e __poke(_rpn_type_t *p2)
 {
     _rpn_type_t *p1 = rpn_pull_queue();
-    if ((p1->type != VAR_TYPE_INTEGER) || (p2->type < VAR_TYPE_FLOAT))
+    if ((p1->type != VAR_TYPE_INT) || (p2->type < VAR_TYPE_FLOAT))
         return BasicError = (p1->type && p2->type) ? BASIC_ERR_TYPE_MISMATCH : BASIC_ERR_FEW_ARGUMENTS;
     else
     {

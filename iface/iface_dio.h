@@ -24,8 +24,26 @@
 #define _IFACE_DIO_H_INCLUDED
 
 #include "rshell.h"
+#define IO_CONF_FILE_NAME ".io.conf"
+
+
+typedef struct __attribute__((packed))
+{
+   uint32_t baud[3];
+   uint8_t mux[2];
+   uint8_t dir[2];
+   uint8_t pin[2];
+   uint8_t pull[2];
+   uint8_t mode[3];
+   uint8_t dioChan : 2;
+   uint8_t sioChan : 2;
+   uint8_t power : 3;
+   uint8_t : 1; // reserved   
+   uint8_t checkSum;
+} _ioconf_t;
 
 extern const _iface_t ifaceDIO;
+extern _ioconf_t ioConf;
 bool set_io_power(uint8_t chan, bool stat);
 
 #endif //_IFACE_DIO_H_INCLUDED

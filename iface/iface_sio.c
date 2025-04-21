@@ -46,20 +46,22 @@
 
 #define SIO_SERDES_CLOCK 12000000.0
 #define regUARTbaud(x) (uint16_t)(65536.0 * (1.0 - 16.0 * (x / SIO_SERDES_CLOCK)))
-#define RX_BUFF_SIZE 32 // should be a power of 2
+#define RX_BUFF_SIZE 32                   // should be a power of 2
+const uint8_t I2CspeedDiv[] = {54, 9, 2}; /// Baud rate selections
 
-static cmd_err_t set_mode(uint8_t mode);
+void set_sio_mode(uint8_t chan, uint8_t mode);
+void set_sio_baud(uint8_t chan, uint32_t baud);
 static bool iface_sio_init(bool verbose);
 static cmd_err_t cmd_sio_channel(_cl_param_t *sParam);
+static cmd_err_t cmd_sio_baud(_cl_param_t *sParam);
 static cmd_err_t cmd_sio_mode(_cl_param_t *sParam);
 static cmd_err_t cmd_sio_tx(_cl_param_t *sParam);
 static cmd_err_t cmd_sio_rx(_cl_param_t *sParam);
 static cmd_err_t cmd_sio_scan(_cl_param_t *sParam);
 static cmd_err_t cmd_sio_power(_cl_param_t *sParam);
+static char promptBuff[8];
 
-char promptBuff[8];
-
-_iface_t ifaceSIO =
+const _iface_t ifaceSIO =
     {
         .name = "sio",
         .prompt = promptBuff,
@@ -69,13 +71,13 @@ _iface_t ifaceSIO =
             {
                 {.name = "chan", .desc = "set channel 0/1", .func = cmd_sio_channel},
                 {.name = "pwr", .desc = "pwr : \'0\'=OFF, \'1\'=ON", .func = cmd_sio_power},
+                {.name = "baud", .desc = "set port baud/bit rate", .func = cmd_sio_baud},
                 {.name = "mode", .desc = "set mode 0:3(OFF,SPI,UART,I2C)", .func = cmd_sio_mode},
                 {.name = "tx", .desc = "send B1 [B2 ... B7]", .func = cmd_sio_tx},
                 {.name = "rx", .desc = "receive Size [Mode/Addr/TX]", .func = cmd_sio_rx},
                 {.name = "scan", .desc = "Scan I2C bus", .func = cmd_sio_scan},
                 {.name = NULL, .func = NULL},
             }};
-
 enum
 {
    SIO_MODE_NONE = 0,
@@ -113,18 +115,6 @@ const struct
             },
         }};
 
-struct
-{
-   uint8_t chan;
-   uint8_t mode[3];
-   uint32_t baud[3];
-} sioConf =
-    {
-        .chan = 0,
-        .mode = {1, 0, 3},
-        .baud = {100000, 100000, 115200},
-};
-
 static struct
 {
    uint8_t data[RX_BUFF_SIZE];
@@ -136,7 +126,7 @@ const char *mName[4] = {"SIO", "SPI", "UART", "I2C"};
 
 static void prompt_update(void)
 {
-   tsprintf((char *)ifaceSIO.prompt, "%s:%d", mName[sioConf.mode[sioConf.chan]], sioConf.chan & 0x03);
+   tsprintf((char *)ifaceSIO.prompt, "%s:%d", mName[ioConf.mode[ioConf.sioChan]], ioConf.sioChan);
 }
 
 static bool iface_sio_init(bool verbose)
@@ -150,7 +140,15 @@ static bool iface_sio_init(bool verbose)
    REG_MCLK_APBAMASK |= MCLK_APBAMASK_SERCOM1;
    REG_MCLK_APBBMASK |= MCLK_APBBMASK_SERCOM2;
    REG_MCLK_APBDMASK |= MCLK_APBDMASK_SERCOM5;
-   set_mode(sioConf.mode[sioConf.chan]);
+   if (ioConf.checkSum == crc8((uint8_t *)&ioConf,sizeof(ioConf)-1)) // Config is valid, init the ports
+   {
+       for (uint8_t i=0;i<3;i++)
+       if (ioConf.mode[i])
+       {   
+           set_sio_mode(ioConf.sioChan,ioConf.mode[ioConf.sioChan]);
+           set_sio_baud(ioConf.sioChan,ioConf.baud[ioConf.sioChan]);
+       }
+   }
    prompt_update();
    initialized = true;
    if (verbose)
@@ -158,33 +156,43 @@ static bool iface_sio_init(bool verbose)
    return true;
 }
 
-static cmd_err_t cmd_sio_power(_cl_param_t *sParam)
+void set_sio_baud(uint8_t chan, uint32_t baud)
 {
-   if (!sParam->argc)
+   uint8_t i2cSpeed;
+   Sercom *sPort = (Sercom *)sioPort.sercom[chan];
+   if (!ioConf.mode[chan])
+      return;
+   ioConf.baud[chan] = baud;
+   sPort->USART.CTRLA.bit.ENABLE = 0;
+   while (sPort->SPI.SYNCBUSY.bit.ENABLE)
+      __asm("nop");
+   switch (ioConf.mode[chan])
    {
-      tprintf("%s\n", (sioConf.chan == 2 ? PWR_UART_PORT.OUT.reg & PWR_UART_EN : PWR_PORT.OUT.reg & (sioConf.chan ? PWR_DIO1_EN : PWR_DIO0_EN)) ? "OFF" : "ON");
+   case SIO_MODE_NONE: // should not get here
+      break;
+   case SIO_MODE_SPI:
+      if (ioConf.baud[chan] > (SIO_SERDES_CLOCK / 2)) ioConf.baud[chan] = SIO_SERDES_CLOCK / 2;
+      sPort->SPI.BAUD.reg = (SIO_SERDES_CLOCK / (2 * ioConf.baud[chan])) - 1;   // calculate clock
+      //ioConf.baud[chan] = (SIO_SERDES_CLOCK / (2 * (sPort->SPI.BAUD.reg + 1))); // update the config with closet baudrate
+      break;
+   case SIO_MODE_UART:
+      sPort->USART.BAUD.reg = regUARTbaud(ioConf.baud[chan]);
+      break;
+   case SIO_MODE_I2C:
+      i2cSpeed = (ioConf.baud[chan] == 1000000 ? I2C_SPEED_1MHZ : ioConf.baud[chan] == 400000 ? I2C_SPEED_400KHZ :
+                                                                                                  I2C_SPEED_100KHZ);
+      if (!i2cSpeed)
+         ioConf.baud[chan] = 100000;                    // correct I2C baud setting
+      sPort->I2CM.BAUD.bit.BAUD = I2CspeedDiv[i2cSpeed]; /// Set baud rate
+      break;
    }
-   else
-      switch (sParam->argc)
-      {
-      case 1:
-         set_io_power(sioConf.chan, tget_enum(sParam->argv[0], EnumOnOff));
-         break;
-      case 2:
-         uint8_t chan = (uint8_t)strtol(sParam->argv[0], NULL, 0);
-         if (chan > 2)
-            chan = 2;
-         set_io_power(chan, tget_enum(sParam->argv[1], EnumOnOff));
-         break;
-      default:
-         break;
-      }
-   return CMD_NO_ERR;
+   sPort->USART.CTRLA.bit.ENABLE = 0x01; /// Enable SERCOM: USART will work for all modes
+   while (sPort->I2CM.SYNCBUSY.bit.ENABLE)
+      __asm("nop"); /// Check to see if SERCOM synchronization is busy
 }
 
-static cmd_err_t set_mode(uint8_t mode)
+void set_sio_mode(uint8_t chan, uint8_t mode)
 {
-   uint8_t chan = sioConf.chan & 0x03;
    Sercom *sPort = (Sercom *)sioPort.sercom[chan];
    mode &= 0x03;
    PortGroup *pPort = (PortGroup *)sioPort.pport[chan];
@@ -204,84 +212,104 @@ static cmd_err_t set_mode(uint8_t mode)
       sPort->SPI.CTRLA.reg = SERCOM_SPI_CTRLA_MODE(3) | SERCOM_SPI_CTRLA_DIPO(0x03) | SERCOM_SPI_CTRLA_DOPO(0x00);
       /// Hardware *SS enable
       sPort->SPI.CTRLB.reg = SERCOM_SPI_CTRLB_RXEN | SERCOM_SPI_CTRLB_MSSEN;
-      sPort->SPI.BAUD.reg = SIO_SERDES_CLOCK / sioConf.baud[chan]; // calculate clock
-      sPort->SPI.CTRLA.bit.ENABLE = 0x01;                          // Enable the port
-      while (sPort->SPI.SYNCBUSY.bit.ENABLE)
-         __asm("nop");
+      set_sio_baud(chan, ioConf.baud[chan]); // set clock and Enable the port
       break;
    case SIO_MODE_UART:
-      sPort->USART.CTRLA.reg = SERCOM_USART_CTRLA_MODE(1) | SERCOM_USART_CTRLA_TXPO(0) | SERCOM_USART_CTRLA_RXPO(1);
+      sPort->USART.CTRLA.reg = SERCOM_USART_CTRLA_MODE(1) | SERCOM_USART_CTRLA_TXPO(0) | SERCOM_USART_CTRLA_RXPO(1) | SERCOM_USART_CTRLA_DORD;
       sPort->USART.CTRLB.reg = SERCOM_USART_CTRLB_TXEN | SERCOM_USART_CTRLB_RXEN;
-      sPort->USART.BAUD.reg = regUARTbaud(sioConf.baud[chan]);
-      sPort->USART.CTRLA.bit.ENABLE = 1;
-      while (sPort->USART.SYNCBUSY.bit.ENABLE)
-         __asm("nop");
-      sPort->USART.INTENSET.bit.RXC = 1; // Receive Complete Interrupt Enable
+      set_sio_baud(chan, ioConf.baud[chan]); // set clock and Enable the port
+      sPort->USART.INTENSET.bit.RXC = 1;      // Receive Complete Interrupt Enable
       NVIC_EnableIRQ(sioPort.irq[chan]);
       break;
    case SIO_MODE_I2C:
-      const uint8_t speedDiv[] = {54, 9, 2}; /// Baud rate selections
       sPort->I2CM.CTRLA.reg = SERCOM_I2CM_CTRLA_MODE(5) | SERCOM_I2CM_CTRLA_SPEED(1) | SERCOM_I2CM_CTRLA_LOWTOUTEN | SERCOM_I2CM_CTRLA_SEXTTOEN | SERCOM_I2CM_CTRLA_MEXTTOEN | SERCOM_I2CM_CTRLA_SCLSM;
       sPort->I2CM.CTRLB.reg = SERCOM_I2CM_CTRLB_SMEN; /// Enable smart mode
-      uint8_t speed = sioConf.baud[chan] == 1000000 ? I2C_SPEED_1MHZ : sioConf.baud[chan] == 400000 ? I2C_SPEED_400KHZ :
-                                                                                                      I2C_SPEED_100KHZ;
-      if (!speed)
-         sioConf.baud[chan] = 100000;              // correct I2C speed setting
-      sPort->I2CM.BAUD.bit.BAUD = speedDiv[speed]; /// Set baud rate
-      sPort->I2CM.CTRLA.bit.ENABLE = 0x01;         /// Enable SERCOM
-      while (sPort->I2CM.SYNCBUSY.bit.ENABLE)
-         __asm("nop");                        /// Check to see if SERCOM synchronization is busy
-      sPort->I2CM.STATUS.bit.BUSSTATE = 0x01; /// Set bus state to I2C_STAT_IDLE
+      set_sio_baud(chan, ioConf.baud[chan]);         // set clock and Enable the port
+      sPort->I2CM.STATUS.bit.BUSSTATE = 0x01;         /// Set bus state to I2C_STAT_IDLE
       break;
    }
-   sioConf.mode[chan] = mode;
+   ioConf.mode[chan] = mode;
    prompt_update();
-   return CMD_NO_ERR;
 }
 
 static cmd_err_t cmd_sio_channel(_cl_param_t *sParam)
 {
    if (sParam->argc)
    {
-      sioConf.chan = (uint8_t)strtol(sParam->argv[0], NULL, 0);
-      if (sioConf.chan > 2)
-         sioConf.chan = 0;
-      set_mode(sioConf.mode[sioConf.chan]);
+      ioConf.sioChan = (uint8_t)strtol(sParam->argv[0], NULL, 0);
+      if (ioConf.sioChan > 2)
+         ioConf.sioChan = 0;
+      set_sio_mode(ioConf.sioChan, ioConf.mode[ioConf.sioChan]);
       prompt_update();
    }
    else
-      tprintf("%d\n", sioConf.chan);
+      tprintf("%d\n", ioConf.sioChan);
+   return CMD_NO_ERR;
+}
+
+static cmd_err_t cmd_sio_power(_cl_param_t *sParam)
+{
+   uint8_t chan = ioConf.sioChan;
+   switch (sParam->argc)
+   {
+   case 0:
+      tprintf("%s\n", (ioConf.sioChan == 2 ? PWR_UART_PORT.OUT.reg & PWR_UART_EN : PWR_PORT.OUT.reg & (ioConf.sioChan ? PWR_DIO1_EN : PWR_DIO0_EN)) ? "OFF" : "ON");
+      break;
+   case 1:
+      set_io_power(chan, tget_enum(sParam->argv[0], EnumOnOff));
+      break;
+   case 2:
+      chan = (uint8_t)strtol(sParam->argv[0], NULL, 0);
+      if (chan > 2) chan = 2;
+      set_io_power(chan, tget_enum(sParam->argv[1], EnumOnOff));
+      break;
+   }
+   return CMD_NO_ERR;
+}
+
+static cmd_err_t cmd_sio_baud(_cl_param_t *sParam)
+{
+   uint8_t chan = ioConf.sioChan;
+   switch (sParam->argc)
+   {
+   case 0:
+      tprintf("%d bps\n", ioConf.baud[chan]);
+      break;
+   case 1:
+      set_sio_baud(chan, (uint32_t)strtol(sParam->argv[0], NULL, 0));
+      break;
+   case 2:
+      chan = (uint8_t)strtol(sParam->argv[0], NULL, 0);
+      if (chan > 2) chan = 2;
+      set_sio_baud(chan, (uint32_t)strtol(sParam->argv[1], NULL, 0));
+      break;
+   }
    return CMD_NO_ERR;
 }
 
 static cmd_err_t cmd_sio_mode(_cl_param_t *sParam)
 {
-   char *paramMode;
-   bool verbose = true;
-   if (sParam->argc)
+   char *paramModeStr;
+   uint8_t chan = ioConf.sioChan;
+   switch (sParam->argc)
    {
-      if (*sParam->argv[0] == '-')
-      {
-         if (sParam->argv[0][1] != 'v')
-            return CMD_UNKNOWN_OPTION;
-        if (sParam->argc < 2) return CMD_MISSING_PARAM;
-         paramMode = sParam->argv[1];
-      }
-      else
-      {
-         paramMode = sParam->argv[0];
-         verbose = false;
-      }
-      uint8_t mode = tget_enum(paramMode, EnumSerPort);
-      if ((mode == SIO_MODE_SPI) && (sioConf.chan == 2))
-      {
-         tprintf("No SPI on channel 2\n");
-         return CMD_ERR_EMPTY;
-      }
-      set_mode(mode);
+   case 0:
+      tprintf("  Chan: %d\n  Mode: %s\n  Baud: %d\n", chan, mName[ioConf.mode[chan]], ioConf.baud[chan]);
+      return CMD_NO_ERR;
+   case 1:
+      paramModeStr = sParam->argv[0];
+      break;
+   case 2:
+      chan = (uint8_t)strtol(sParam->argv[0], NULL, 0);
+      if (chan > 2) chan = 2;
+      paramModeStr = sParam->argv[1];
+      break;
+    default: return CMD_TOOMANY_PARAM;
    }
-   if (verbose)
-      tprintf("  Chan: %d\n  Mode: %s\n  Baud: %d\n", sioConf.chan, mName[sioConf.mode[sioConf.chan]], sioConf.baud[sioConf.chan]);
+   uint8_t mode = tget_enum(paramModeStr, EnumSerPort);
+   if ((mode == SIO_MODE_SPI) && (chan == 2))
+      return "No SPI on channel 2";
+   set_sio_mode(chan, mode);
    return CMD_NO_ERR;
 }
 
@@ -290,18 +318,28 @@ static cmd_err_t cmd_sio_tx(_cl_param_t *sParam)
    uint8_t err = 0;
    uint8_t i;
    char *str;
-   Sercom *port = (Sercom *)sioPort.sercom[sioConf.chan];
-   switch (sioConf.mode[sioConf.chan])
+   Sercom *port = (Sercom *)sioPort.sercom[ioConf.sioChan];
+   switch (ioConf.mode[ioConf.sioChan])
    {
    case SIO_MODE_UART:
       if (sParam->argc) // send string
       {
-         str = sParam->argv[0];
-         while (*str)
+         for (uint8_t i = 0; i < sParam->argc; i++)
          {
-            while (!port->USART.INTFLAG.bit.DRE)
-               __asm("nop");
-            port->USART.DATA.reg = *str++;
+            str = sParam->argv[i];
+            if (*str < '0' || *str > '9') // send string
+               while (*str)
+               {
+                  while (!port->USART.INTFLAG.bit.DRE)
+                     __asm("nop");
+                  port->USART.DATA.reg = *str++;
+               }
+            else
+            {
+               while (!port->USART.INTFLAG.bit.DRE)
+                  __asm("nop");
+               port->USART.DATA.reg = (uint8_t)strtol(str, NULL, 0);
+            }
          }
       }
       else
@@ -327,9 +365,9 @@ static cmd_err_t cmd_sio_tx(_cl_param_t *sParam)
    case SIO_MODE_I2C:
       if (!sParam->argc)
          return "DevID missing.";
-      for (i = 0; i < sParam->argc && i < sizeof(sioFifo[sioConf.chan].data); i++)
-         sioFifo[sioConf.chan].data[i] = (uint8_t)strtol(sParam->argv[i], NULL, 0);
-      if ((err = i2c_bare_write(port, sioFifo[sioConf.chan].data[0] << 1, &sioFifo[sioConf.chan].data[1], sParam->argc - 1)) != I2C_ERR_NONE)
+      for (i = 0; i < sParam->argc && i < sizeof(sioFifo[ioConf.sioChan].data); i++)
+         sioFifo[ioConf.sioChan].data[i] = (uint8_t)strtol(sParam->argv[i], NULL, 0);
+      if ((err = i2c_bare_write(port, sioFifo[ioConf.sioChan].data[0] << 1, &sioFifo[ioConf.sioChan].data[1], sParam->argc - 1)) != I2C_ERR_NONE)
       {
          tprintf("E:I2C error[%d]\n", err);
          return CMD_ERR_EMPTY;
@@ -348,16 +386,16 @@ static cmd_err_t cmd_sio_rx(_cl_param_t *sParam)
    uint8_t size = 1, err;
    uint16_t addr = 0xff, DevID;
    uint8_t i;
-   Sercom *port = (Sercom *)sioPort.sercom[sioConf.chan];
+   Sercom *port = (Sercom *)sioPort.sercom[ioConf.sioChan];
 
-   switch (sioConf.mode[sioConf.chan])
+   switch (ioConf.mode[ioConf.sioChan])
    {
    case SIO_MODE_UART:
       size = 0;
-      while (sioFifo[sioConf.chan].tail != sioFifo[sioConf.chan].head)
+      while (sioFifo[ioConf.sioChan].tail != sioFifo[ioConf.sioChan].head)
       {
-         tprintf("%c", sioFifo[sioConf.chan].data[sioFifo[sioConf.chan].tail++]);
-         sioFifo[sioConf.chan].tail &= sizeof(sioFifo[sioConf.chan].data) - 1; // keep the pointer within the buffer address range
+         tprintf("%c", sioFifo[ioConf.sioChan].data[sioFifo[ioConf.sioChan].tail++]);
+         sioFifo[ioConf.sioChan].tail &= sizeof(sioFifo[ioConf.sioChan].data) - 1; // keep the pointer within the buffer address range
          size++;
       }
       break;
@@ -368,12 +406,12 @@ static cmd_err_t cmd_sio_rx(_cl_param_t *sParam)
          addr = (uint8_t)strtol(sParam->argv[1], NULL, 0);
       while (size--)
       {
-         while (!(sioPort.sercom[sioConf.chan]->SPI.INTFLAG.bit.DRE))
+         while (!(sioPort.sercom[ioConf.sioChan]->SPI.INTFLAG.bit.DRE))
             __asm("nop");
-         sioPort.sercom[sioConf.chan]->SPI.DATA.reg = addr;
-         while (!sioPort.sercom[sioConf.chan]->SPI.INTFLAG.bit.RXC)
+         sioPort.sercom[ioConf.sioChan]->SPI.DATA.reg = addr;
+         while (!sioPort.sercom[ioConf.sioChan]->SPI.INTFLAG.bit.RXC)
             __asm("nop");
-         tprintf("0x%2x ", (uint8_t)sioPort.sercom[sioConf.chan]->SPI.DATA.reg);
+         tprintf("0x%2x ", (uint8_t)sioPort.sercom[ioConf.sioChan]->SPI.DATA.reg);
       }
       break;
    case SIO_MODE_I2C:
@@ -402,17 +440,17 @@ static cmd_err_t cmd_sio_rx(_cl_param_t *sParam)
       if (size > RX_BUFF_SIZE)
          size = RX_BUFF_SIZE;
       if (sParam->argc == 2)
-         err = i2c_bare_read(port, (uint8_t)DevID, sioFifo[sioConf.chan].data, size);
+         err = i2c_bare_read(port, (uint8_t)DevID, sioFifo[ioConf.sioChan].data, size);
       else
-         err = i2c_read(port, DevID, addr, sioFifo[sioConf.chan].data, size);
+         err = i2c_read(port, DevID, addr, sioFifo[ioConf.sioChan].data, size);
       if (err)
-         {
-             tprintf("E: I2C error[%d]\n", err);
-             return CMD_ERR_EMPTY;
-         }
+      {
+         tprintf("E: I2C error[%d]\n", err);
+         return CMD_ERR_EMPTY;
+      }
       else
          for (i = 0; i < size; i++)
-            tprintf("0x%2x ", sioFifo[sioConf.chan].data[i]);
+            tprintf("0x%2x ", sioFifo[ioConf.sioChan].data[i]);
       break;
    default:
       return CMD_NO_ERR;
@@ -425,9 +463,9 @@ static cmd_err_t cmd_sio_rx(_cl_param_t *sParam)
 static cmd_err_t cmd_sio_scan(_cl_param_t *sParam)
 {
 
-   if (sioConf.mode[sioConf.chan] != SIO_MODE_I2C)
+   if (ioConf.mode[ioConf.sioChan] != SIO_MODE_I2C)
       return "I2C scan: invalid mode!";
-   Sercom *port = (Sercom *)sioPort.sercom[sioConf.chan];
+   Sercom *port = (Sercom *)sioPort.sercom[ioConf.sioChan];
    uint8_t tmp;
    for (uint8_t i = 0; i < 128; i++)
    {

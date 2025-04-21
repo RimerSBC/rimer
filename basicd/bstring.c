@@ -39,7 +39,7 @@ _bas_err_e __val$(_rpn_type_t *param)
     case VAR_TYPE_LOOP:
       b_sprintf(strNumBuff,sizeof(strNumBuff),"%s",tftoa(param->var.f,0));
       break;
-    case VAR_TYPE_INTEGER:
+    case VAR_TYPE_INT:
     case VAR_TYPE_BYTE:
     case VAR_TYPE_WORD:
       b_sprintf(strNumBuff,sizeof(strNumBuff),"%d", param->var.i);

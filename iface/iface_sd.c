@@ -133,9 +133,32 @@ char *cmd_fat_ls(_cl_param_t *sParam)
    FRESULT fr;  /* Return value */
    DIR dj;      /* Directory object */
    FILINFO fno; /* File information */
+   bool showSize = false;
+   bool showHidden = false;
    uint8_t lineCnt = 0;
-   /// Start to search for files
-   if ((fr = f_findfirst(&dj, &fno, "", sParam->argc ? sParam->argv[0] : "*")) != FR_OK)
+   char *fileName = NULL;
+   if (sParam->argc)
+   {
+      if (*sParam->argv[0] == '-') // the first param is an option list
+      {
+         while (*++sParam->argv[0])
+            switch (*sParam->argv[0])
+            {
+            case 's':
+               showSize = true;
+               break;
+            case 'h':
+               showHidden = true;
+               break;
+            }
+         if (sParam->argc > 1)
+            fileName = sParam->argv[1];
+      }
+      else
+         fileName = sParam->argv[0];
+   }
+   /// Start files search
+   if ((fr = f_findfirst(&dj, &fno, "", fileName ? fileName : "*")) != FR_OK)
       return "can't read volume!";
    while (fr == FR_OK && fno.fname[0]) /* Repeat while an item is found */
    {
@@ -148,11 +171,17 @@ char *cmd_fat_ls(_cl_param_t *sParam)
          if (lineCnt)
             break;
       }
+      if(*fno.fname != '.' || showHidden)
+      {
       if (fno.fattrib & AM_DIR)
          tprintf("[ %s ]\n", fno.fname); /* Print directory name */
       else
-         tprintf("%d %s\n", fno.fsize, fno.fname); /* Print the object name */
-      fr = f_findnext(&dj, &fno);                  /* Search for next item */
+         {
+             if (showSize) tprintf("%d ", fno.fsize);
+             tprintf("%s\n", fno.fname); /* Print the object name */
+         }
+      }
+      fr = f_findnext(&dj, &fno); /* Search for next item */
       lineCnt++;
    }
    f_closedir(&dj);

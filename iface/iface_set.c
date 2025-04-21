@@ -41,7 +41,6 @@
 #include "tstring.h"
 #include "sys_config.h"
 
-
 static cmd_err_t set_foreground(_cl_param_t *sParam);
 static cmd_err_t set_background(_cl_param_t *sParam);
 static cmd_err_t set_volume(_cl_param_t *sParam);
