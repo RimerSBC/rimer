@@ -74,6 +74,7 @@ const _bas_func_t BasicFunction[] =
     {"draw",__draw},
     {"rect",__rect},
     {"circle",__circle},       
+    {"bar",__bar},       
     /// --- data manipulation
     {"let",__let},
     {"dim",__dim},
@@ -95,6 +96,7 @@ const _bas_func_t BasicFunction[] =
     {"byte",__byte},
     {"word",__word},
     /// --- math
+    {"pwr",__pwr},
     {"abs",__abs},
     {"sin",__sin},
     {"cos",__cos},
@@ -107,12 +109,6 @@ const _bas_func_t BasicFunction[] =
     {"rad",__rad},
     {"min",__min},
     {"max",__max},
-    /// --- logic
-    {"and#",__and},
-    {"or#",__or},
-    {"xor#",__xor},
-    {"sl#",__sl},
-    {"sr#",__sr},
     /// --- no argument functions
     {"inkey",__inkey},
     /// data type 

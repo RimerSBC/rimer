@@ -33,23 +33,29 @@
 #define DEGREES(rad)    ((rad) * 180.0 / M_PI)
 #define RADIANS(deg)    ((deg) * M_PI / 180.0)
 /// Math operators
-#define OPERATOR_PWR        '^'
 #define OPERATOR_MUL        '*'
 #define OPERATOR_DIV        '/'
 #define OPERATOR_MOD        '%'
 #define OPERATOR_PLUS       '+'
 #define OPERATOR_MINUS      '-'
 /// Logic operators
-#define OPERATOR_AND        '&'
-#define OPERATOR_OR         '|'
+#define OPERATOR_AND        17
+#define OPERATOR_OR         18
 #define OPERATOR_NOT        '!'
+/// Bitwise operators
+#define OPERATOR_BWNOT      '~'
+#define OPERATOR_BWAND      '&'
+#define OPERATOR_BWOR       '|'
+#define OPERATOR_BWXOR      '^'
+#define OPERATOR_BWSL       19
+#define OPERATOR_BWSR       20
 /// Condition operators
 #define OPERATOR_MORE       '>'
 #define OPERATOR_LESS       '<'
 #define OPERATOR_EQUAL      '='
-#define OPERATOR_MORE_EQ    '~'
-#define OPERATOR_NOT_EQ     '@'
-#define OPERATOR_LESS_EQ    '`'
+#define OPERATOR_MORE_EQ    14
+#define OPERATOR_NOT_EQ     15
+#define OPERATOR_LESS_EQ    16
 
 typedef enum
 {

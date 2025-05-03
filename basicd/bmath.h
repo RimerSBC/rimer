@@ -29,6 +29,7 @@ _bas_err_e __int(_rpn_type_t *param);
 _bas_err_e __byte(_rpn_type_t *param);
 _bas_err_e __word(_rpn_type_t *param);
 /// math
+_bas_err_e __pwr(_rpn_type_t *p1);
 _bas_err_e __abs(_rpn_type_t *param);
 _bas_err_e __sin(_rpn_type_t *param);
 _bas_err_e __cos(_rpn_type_t *param);

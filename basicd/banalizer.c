@@ -57,7 +57,6 @@ const struct
     {'(',-1},
     {'[',-1},
     {0x80,6}, // rpn function
-    {OPERATOR_PWR, 6},
     {OPERATOR_MUL, 5},
     {OPERATOR_DIV, 5},
     {OPERATOR_MOD, 5},
@@ -70,8 +69,14 @@ const struct
     {OPERATOR_NOT_EQ, 3},
     {OPERATOR_LESS_EQ, 3},
     {OPERATOR_NOT, 2},
+    {OPERATOR_BWNOT, 2},
     {OPERATOR_OR, 1},
     {OPERATOR_AND, 1},
+    {OPERATOR_BWXOR, 1},
+    {OPERATOR_BWOR, 1},
+    {OPERATOR_BWAND, 1},
+    {OPERATOR_BWSL, 1},
+    {OPERATOR_BWSR, 1},
     {0}
 };
 
@@ -131,13 +136,18 @@ bool tokenizer(char *str) // return false if total number of bLineToken.ts is gr
         case OPERATOR_MUL:
         case OPERATOR_DIV:
         case OPERATOR_MOD:
-        case OPERATOR_PWR:
         case OPERATOR_MORE_EQ:
         case OPERATOR_NOT_EQ:
         case OPERATOR_LESS_EQ:
         case OPERATOR_AND:
         case OPERATOR_OR:
         case OPERATOR_NOT:
+        case OPERATOR_BWNOT:
+        case OPERATOR_BWXOR:
+        case OPERATOR_BWOR:
+        case OPERATOR_BWAND:        
+        case OPERATOR_BWSL:
+        case OPERATOR_BWSR:        
         case '[':
         case ']':
         case '(':

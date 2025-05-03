@@ -44,13 +44,15 @@ const struct
 {
    const char *name;
    char op;
-} BasicOperators[6] = {
+} BasicOperators[8] = {
     {"and", OPERATOR_AND},
     {"or", OPERATOR_OR},
     {"not", OPERATOR_NOT},
     {">=", OPERATOR_MORE_EQ},
     {"<>", OPERATOR_NOT_EQ},
     {"<=", OPERATOR_LESS_EQ},
+    {"<<", OPERATOR_BWSL},
+    {">>", OPERATOR_BWSR},
 };
 const char *OP_STR = " `=<>~!@%^&*()-+|\\,./;:\r\n";
 
@@ -127,9 +129,8 @@ _bas_var_t *var_add(char *name)
    }
    varPtr->next = NULL; ///--- already null;
    strcpy(varPtr->name, name);
-   if (nameLen == 1)
-      varPtr->value.type = VAR_TYPE_FLOAT; // single character variable is always float
-   else
+   varPtr->value.type = VAR_TYPE_FLOAT; 
+   if (nameLen > 1) // single character variable is always float
       switch (*typeQ--)
       {
       case '$':
@@ -202,7 +203,7 @@ uint8_t *basic_line_totext(uint8_t *line) /// look for an opcode name and replac
 
       if (*line >= OPCODE_MASK)
          opName = bas_func_name(*line);
-      for (uint8_t i = 0; i < 6 && !opName; i++)
+      for (uint8_t i = 0; i < 8 && !opName; i++)
          if (*line == BasicOperators[i].op)
             opName = BasicOperators[i].name;
       if (opName)
@@ -264,14 +265,14 @@ uint8_t *basic_line_preprocess(
       /** check for delimeter */
       if ((!*line) || (strchr(OP_STR, *line))) // delimeter found
       {
-         if (((*line == '=') || (*line == '>')) &&
-             ((*(line - 1) == '<') || (*(line - 1) == '>'))) // process <>, >= and <=
+         if (((*line == '=') || (*line == '>') || (*line == '<')) &&
+             ((*(line - 1) == '<') || (*(line - 1) == '>'))) // process <>, >=, <=, <<, and >>
          {
             tail--;
             tmpBasicLine[head++] = *(line++);
          }
          tmpBasicLine[head] = '\0'; // terminate the temporary string
-         for (uint8_t i = 0; i < 6 && !opCode; i++)
+         for (uint8_t i = 0; i < 8 && !opCode; i++)
             if (!strcmp((char *)&tmpBasicLine[tail], BasicOperators[i].name))
                opCode = BasicOperators[i].op;
          if (!opCode)

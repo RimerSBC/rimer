@@ -74,13 +74,6 @@ _bas_err_e __paper(_rpn_type_t *p1)
         text_bg_colour(c);
     return BasicError = BASIC_ERR_NONE;
 };
-/*
-_bas_err_e __over(_rpn_type_t *p1)
-{
-    if (p1->type < VAR_TYPE_FLOAT) return BasicError = BASIC_ERR_TYPE_MISMATCH;
-    set_pixel_mode(p1->var.i ? true : false);
-    return BasicError = BASIC_ERR_NONE;
-};*/
 
 _bas_err_e __cls(_rpn_type_t *param)
 {
@@ -225,88 +218,43 @@ _bas_err_e __circle(_rpn_type_t *param)
   }
   return BasicError = BASIC_ERR_NONE;
 }
-
-/*
-_bas_err_e __plot(_rpn_type_t *p2)
+/***
+ * Draw a status bar filled proportional to the set percentage
+ * @brief bar(x,y,length,width,value,orientation)
+ * x,y - graphic offset
+ * length,width bar's params
+ * value - fill percentage
+ * orintation - 0 (or none) horizontal, 1 vertical 
+ * */
+_bas_err_e __bar(_rpn_type_t *param)
 {
-    _rpn_type_t *p1 = rpn_pull_queue();
-    if ((p1->type < VAR_TYPE_FLOAT) || (p2->type < VAR_TYPE_FLOAT))
-        return BasicError = (p1->type && p2->type) ? BASIC_ERR_TYPE_MISMATCH : BASIC_ERR_FEW_ARGUMENTS;
-    lastX = (uint16_t)(p1->type & VAR_TYPE_FLOAT ? p1->var.f : p1->var.i);
-    lastY = (uint16_t)(p2->type & VAR_TYPE_FLOAT ? p2->var.f : p2->var.i);
-    //if (!(x && y)) return BasicError = BASIC_ERR_VAR_OUTOFRANGE;
-    put_pixel(lastX,lastY,uTerm.fgColour);
-    return BasicError = BASIC_ERR_NONE;
-};
-
-_bas_err_e __line(_rpn_type_t *p4)
-{
-    _rpn_type_t *p3 = rpn_pull_queue();
-    _rpn_type_t *p2 = rpn_pull_queue();
-    _rpn_type_t *p1 = rpn_pull_queue();
-    uint16_t x;
-    uint16_t y;
-    if ((p1->type < VAR_TYPE_FLOAT) || (p2->type < VAR_TYPE_FLOAT) || (p3->type < VAR_TYPE_FLOAT) || (p4->type < VAR_TYPE_FLOAT))
-        return BasicError = (p1->type && p2->type && p3->type && p4->type) ? BASIC_ERR_TYPE_MISMATCH : BASIC_ERR_FEW_ARGUMENTS;
-    x = (uint16_t)(p1->type & VAR_TYPE_FLOAT ? p1->var.f : p1->var.i);
-    y = (uint16_t)(p2->type & VAR_TYPE_FLOAT ? p2->var.f : p2->var.i);
-    lastX = (uint16_t)(p3->type & VAR_TYPE_FLOAT ? p3->var.f : p3->var.i);
-    lastY = (uint16_t)(p4->type & VAR_TYPE_FLOAT ? p4->var.f : p4->var.i);
-    line(x,y,lastX,lastY,uTerm.fgColour);
-    return BasicError = BASIC_ERR_NONE;
-};
-
-
-_bas_err_e __lineto(_rpn_type_t *p2)
-{
-    _rpn_type_t *p1 = rpn_pull_queue();
-    uint16_t x = lastX,y = lastY;
-    if ((p1->type < VAR_TYPE_FLOAT) || (p2->type < VAR_TYPE_FLOAT))
-        return BasicError = (p1->type && p2->type) ? BASIC_ERR_TYPE_MISMATCH : BASIC_ERR_FEW_ARGUMENTS;
-    lastX = (uint16_t)(p1->type & VAR_TYPE_FLOAT ? p1->var.f : p1->var.i);
-    lastY = (uint16_t)(p2->type & VAR_TYPE_FLOAT ? p2->var.f : p2->var.i);
-    line(x,y,lastX,lastY,uTerm.fgColour);
-    return BasicError = BASIC_ERR_NONE;
-};
-
-_bas_err_e __rect(_rpn_type_t *p4)
-{
-    _rpn_type_t *p3 = rpn_pull_queue();
-    _rpn_type_t *p2 = rpn_pull_queue();
-    _rpn_type_t *p1 = rpn_pull_queue();
-    uint16_t sizeX;
-    int16_t sizeY;
-    if ((p1->type < VAR_TYPE_FLOAT) || (p2->type < VAR_TYPE_FLOAT) || (p3->type < VAR_TYPE_FLOAT) || (p4->type < VAR_TYPE_FLOAT))
-        return BasicError = (p1->type && p2->type && p3->type && p4->type) ? BASIC_ERR_TYPE_MISMATCH : BASIC_ERR_FEW_ARGUMENTS;
-    lastX = (uint16_t)(p1->type & VAR_TYPE_FLOAT ? p1->var.f : p1->var.i);
-    lastY = (uint16_t)(p2->type & VAR_TYPE_FLOAT ? p2->var.f : p2->var.i);
-    sizeX = (uint16_t)(p3->type & VAR_TYPE_FLOAT ? p3->var.f : p3->var.i);
-    sizeY = (int16_t)(p4->type & VAR_TYPE_FLOAT ? p4->var.f : p4->var.i);
-    if (sizeY < 0)
-    {
-        rect_fill(lastX,lastY,sizeX,-sizeY,uTerm.fgColour);
-    }
-    else
-        rect(lastX,lastY,sizeX,sizeY,uTerm.fgColour);
-    return BasicError = BASIC_ERR_NONE;
-};
-
-_bas_err_e __circle(_rpn_type_t *r)
-{
-    _rpn_type_t *p2 = rpn_pull_queue();
-    _rpn_type_t *p1 = rpn_pull_queue();
-    int16_t radius;
-    if ((p1->type < VAR_TYPE_FLOAT) || (p2->type < VAR_TYPE_FLOAT) || (r->type < VAR_TYPE_FLOAT))
-        return BasicError = (p1->type && p2->type && r->type) ? BASIC_ERR_TYPE_MISMATCH : BASIC_ERR_FEW_ARGUMENTS;
-    lastX = (uint16_t)(p1->type & VAR_TYPE_FLOAT ? p1->var.f : p1->var.i);
-    lastY = (uint16_t)(p2->type & VAR_TYPE_FLOAT ? p2->var.f : p2->var.i);
-    radius = (int16_t)(r->type & VAR_TYPE_FLOAT ? r->var.f : r->var.i);
-    if (radius < 0)
-    {
-        circle_fill(lastX,lastY,-radius,uTerm.fgColour);
-    }
-    else
-        circle(lastX,lastY,radius,uTerm.fgColour);
-    return BasicError = BASIC_ERR_NONE;
-};
-*/
+  bool vertical = false;
+  uint16_t i;
+  if (get_num_params(param->var.i)) return BasicError;
+  if (funcParam.count<5) return BasicError = BASIC_ERR_FEW_ARGUMENTS;
+  if (funcParam.count==6)
+      vertical = funcParam.var[5] ? true : false;
+  int16_t x=funcParam.var[0];
+  int16_t y=funcParam.var[1];
+  int16_t l=funcParam.var[2];
+  int16_t w=funcParam.var[3];
+  if (funcParam.var[4]>100) funcParam.var[4]=100;
+  int16_t th = funcParam.var[4]*l/100; 
+  if (vertical)
+  {
+      if ((x+w)>=LCD_WIDTH || l>y || (y-l < 0) || y>=LCD_HEIGHT) return BasicError = BASIC_ERR_VAR_OUTOFRANGE;
+      for(i=0;i<th;i++)
+          line_h(x,y-i,w,uTerm.fgColour);
+      for(i=th;i<l;i++)
+          line_h(x,y-i,w,uTerm.bgColour);
+  }
+  else // vertical
+  {
+      if ((x+l)>=LCD_WIDTH || (y+w)>=LCD_HEIGHT) return BasicError = BASIC_ERR_VAR_OUTOFRANGE;
+      for(i=0;i<th;i++)
+          line_v(x+i,y,w,uTerm.fgColour);
+      for(i=th;i<l;i++)
+          line_v(x+i,y,w,uTerm.bgColour);
+  }
+  return BasicError = BASIC_ERR_NONE;
+}

@@ -121,6 +121,10 @@ uint8_t tok_colour(char *str)
         case '<':
         case '=':
         case '!':
+        case '~':
+        case '&':
+        case '|':
+        case '^':
           if (!length)
             {
               colour = SYNCOL_OPERATOR;

@@ -38,5 +38,6 @@ _bas_err_e __plot(_rpn_type_t *param);
 _bas_err_e __draw(_rpn_type_t *param);
 _bas_err_e __rect(_rpn_type_t *param);
 _bas_err_e __circle(_rpn_type_t *param);
+_bas_err_e __bar(_rpn_type_t *param);
 
 #endif //_BSCREEN_H_INCLUDED
