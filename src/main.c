@@ -36,7 +36,7 @@
 
 int main(void)
 {
-    AppGreeting = "-- Rimer App V0.63";
+    AppGreeting = "-- Rimer App V0.64";
     bsp_init();
     xTaskCreate(ucosR_task, "ucosR", configMINIMAL_STACK_SIZE, NULL, 2, NULL);
     vTaskStartScheduler();

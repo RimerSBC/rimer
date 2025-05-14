@@ -44,6 +44,9 @@ _bas_err_e __at(_rpn_type_t *p2)
         return BasicError = (p1->type && p2->type) ? BASIC_ERR_TYPE_MISMATCH : BASIC_ERR_FEW_ARGUMENTS;
     uint8_t x = (uint8_t)(p1->type & VAR_TYPE_FLOAT ? p1->var.f : p1->var.i);
     uint8_t y = (uint8_t)(p2->type & VAR_TYPE_FLOAT ? p2->var.f : p2->var.i);
+    if (!(x && y)) return BasicError = BASIC_ERR_VAR_OUTOFRANGE;
+    x -= 1;
+    y -= 1;
     if (!(x < uTerm.cols && y < uTerm.lines)) return BasicError = BASIC_ERR_VAR_OUTOFRANGE;
     uTerm.cursorCol = x;
     uTerm.cursorLine = y;

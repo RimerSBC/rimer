@@ -932,7 +932,7 @@ void prog_load(char *progFileName)
       _rpn_type_t fileName = {.type = VAR_TYPE_STRING, .var.str = progFileName};
       __load(&fileName);
    }
-#if 1
+#if 0
    else /// LOAD from an array
    {
       static const _bas_rom_t *romProg[3] = {&ROM_bounce, &ROM_ctree, &ROM_snake};
