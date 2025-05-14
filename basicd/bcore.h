@@ -25,7 +25,7 @@
 #define _BCORE_H_INCLUDED
 
 #define BASICD_VESRION      0
-#define BASICD_SUBVESRION   40
+#define BASICD_SUBVESRION   50
 
 #define PARSER_MAX_TOKENS   32
 #define BASIC_VAR_NAME_LEN  16

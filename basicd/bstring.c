@@ -30,7 +30,7 @@
 
 char strTmpBuff[BASIC_STRING_LEN];
 static char strVarBuff[BASIC_STRING_LEN];
-static char strNumBuff[16];
+static char strNumBuff[36];
 _bas_err_e __val$(_rpn_type_t *param)
 {
     switch (param->type)
@@ -59,7 +59,18 @@ _bas_err_e __val$(_rpn_type_t *param)
 
 _bas_err_e __hex$(_rpn_type_t *param)
 {
-    b_sprintf(strNumBuff,sizeof(strNumBuff),(param->type == VAR_TYPE_BYTE) ? "%2x" : (param->type == VAR_TYPE_WORD) ? "%4x" : "%8x",param->var.i);
+    b_sprintf(strNumBuff,sizeof(strNumBuff),(param->type == VAR_TYPE_BYTE) ? "%2X" : (param->type == VAR_TYPE_WORD) ? "%4X" : "%8X",param->var.i);
+    rpn_push_queue(RPN_STR(strNumBuff));
+    return BasicError = BASIC_ERR_NONE;
+};
+
+_bas_err_e __bin$(_rpn_type_t *param)
+{
+    uint8_t i,len = (param->type == VAR_TYPE_BYTE) ? 8 : (param->type == VAR_TYPE_WORD) ? 16 : 32;
+    uint32_t mask=(0x01<<(len-1));
+    for (i=0;i<len;i++,mask>>=1)
+        strNumBuff[i]=param->var.w&mask?'1':'0';
+    strNumBuff[i]='\0';
     rpn_push_queue(RPN_STR(strNumBuff));
     return BasicError = BASIC_ERR_NONE;
 };

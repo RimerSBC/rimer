@@ -73,6 +73,7 @@ enum
     __OPCODE_PAPER,
     __OPCODE_VAL$,
     __OPCODE_HEX$,
+    __OPCODE_BIN$,
     __OPCODE_INT,
     __OPCODE_BYTE,
     __OPCODE_WORD,

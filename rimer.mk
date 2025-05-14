@@ -2,10 +2,10 @@
 ## Auto Generated makefile by CodeLite IDE
 ## any manual changes will be erased      
 ##
-## Debug
+## Release_uf2
 ProjectName            :=rimer
-ConfigurationName      :=Debug
-WorkspaceConfiguration :=Debug
+ConfigurationName      :=Release_uf2
+WorkspaceConfiguration :=Release_uf2
 WorkspacePath          :=/Users/sergey/projloc/rimer/fw
 ProjectPath            :=/Users/sergey/projloc/rimer/fw
 IntermediateDirectory  :=$(ConfigurationName)
@@ -14,7 +14,7 @@ CurrentFileName        :=
 CurrentFilePath        :=
 CurrentFileFullPath    :=
 User                   :=sergey
-Date                   :=03/05/2025
+Date                   :=13/05/2025
 CodeLitePath           :=/Users/sergey/.codelite
 LinkerName             :=/Applications/arm/bin/arm-none-eabi-gcc
 SharedObjectLinkerName :=/Applications/arm/bin/arm-none-eabi-g++ -shared -fPIC
@@ -37,12 +37,12 @@ PreprocessOnlySwitch   :=-E
 ObjectsFileList        :="rimer.txt"
 PCHCompileFlags        :=
 MakeDirCommand         :=mkdir -p
-LinkOptions            := -TucosR_1M_256k.ld -mthumb -Wl,-Map=$(ProjectName).map --specs=nosys.specs --specs=nano.specs -Wl,--gc-sections -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16
+LinkOptions            := -mthumb -Wl,-Map=$(ProjectName).map --specs=nosys.specs --specs=nano.specs -Wl,--gc-sections -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -TucosR_1M_256k_uf2.ld
 IncludePath            :=  $(IncludeSwitch). $(IncludeSwitch)inc $(IncludeSwitch)inc/cmsis $(IncludeSwitch)inc/samd51 $(IncludeSwitch)inc/kernel $(IncludeSwitch)iface $(IncludeSwitch)basicd $(IncludeSwitch)zx80 $(IncludeSwitch)bios/samd51 
 IncludePCH             := 
 RcIncludePath          := 
-Libs                   := $(LibrarySwitch)m $(LibrarySwitch)ucosR 
-ArLibs                 :=  "m" "ucosR" 
+Libs                   := $(LibrarySwitch)ucosR $(LibrarySwitch)m 
+ArLibs                 :=  "ucosR" "m" 
 LibPath                := $(LibraryPathSwitch)lib 
 
 ##
@@ -52,8 +52,8 @@ LibPath                := $(LibraryPathSwitch)lib
 AR       := /Applications/arm/bin/arm-none-eabi-ar rcu
 CXX      := /Applications/arm/bin/arm-none-eabi-g++
 CC       := /Applications/arm/bin/arm-none-eabi-gcc
-CXXFLAGS :=  -g -O0 -Wall $(Preprocessors)
-CFLAGS   := -mthumb -ffunction-sections -fdata-sections -mcpu=cortex-m4 -std=gnu99 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -g -O0 -Wall $(Preprocessors)
+CXXFLAGS :=  -O2 -Wall $(Preprocessors)
+CFLAGS   := -mthumb -ffunction-sections -fdata-sections -mcpu=cortex-m4 -std=gnu99 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -O2 -Wall $(Preprocessors)
 ASFLAGS  := 
 AS       := /Applications/arm/bin/arm-none-eabi-as
 
@@ -92,8 +92,9 @@ $(OutputFile): $(IntermediateDirectory)/.d $(Objects)
 
 PostBuild:
 	@echo Executing Post Build commands ...
-	/Applications/ARM/bin/arm-none-eabi-size Debug/rimer
-	/Applications/ARM/bin/arm-none-eabi-objcopy -O ihex Debug/rimer Debug/rimer.hex
+	/Applications/ARM/bin/arm-none-eabi-size Release_uf2/rimer
+	/Applications/ARM/bin/arm-none-eabi-objcopy -O binary Release_uf2/rimer Release_uf2/rimer.bin
+	./uf2conv Release_uf2/rimer.bin rimer.uf2
 	@echo Done
 
 MakeIntermediateDirs:

@@ -136,12 +136,6 @@ _bas_var_t *var_add(char *name)
       case '$':
          varPtr->value.type = VAR_TYPE_STRING;
          break;
-      case '_':
-         varPtr->value.type = VAR_TYPE_BYTE;
-         break;
-      case '#':
-         varPtr->value.type = VAR_TYPE_INT;
-         break;
       case 'b':
          if (*typeQ == '.') varPtr->value.type = VAR_TYPE_BYTE;
          break;
@@ -616,7 +610,7 @@ bool basic_printf(_rpn_type_t *var)
    {
    case VAR_TYPE_FLOAT:
    case VAR_TYPE_LOOP:
-      b_printf("%s", tftoa(var->var.f, 0));
+      b_printf("%s", tftoa(var->var.f, 3));
       break;
    case VAR_TYPE_INT:
    case VAR_TYPE_BYTE:

@@ -91,6 +91,7 @@ const _bas_func_t BasicFunction[] =
     /// --- string/type
     {"val$",__val$},
     {"hex$",__hex$},
+    {"bin$",__bin$},
     /// --- data type
     {"int",__int},
     {"byte",__byte},

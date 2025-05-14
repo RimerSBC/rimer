@@ -186,6 +186,7 @@ void rpn_purge_stack(void)
 _bas_err_e rpn_eval(uint8_t op)
 {
    _rpn_type_t value[2];
+   value[1].type = VAR_TYPE_NONE;
    bool doFloat = false;
    if (!op || (op == ' ')) return BasicError = BASIC_ERR_PAR_MISMATCH;
    if (op < FUNC_TYPE_NOARG) value[0] = *rpn_pull_queue(); // arrays and deffn have variable number of params
@@ -215,11 +216,11 @@ _bas_err_e rpn_eval(uint8_t op)
    case OPERATOR_BWSR:
       value[1] = *rpn_pull_queue();
       if (value[1].type & VAR_TYPE_FLOAT) return BasicError = BASIC_ERR_TYPE_MISMATCH;
-      if (value[0].type & VAR_TYPE_FLOAT) 
-          {
-              value[0].var.i = (int32_t)value[0].var.f;
-              value[0].type = VAR_TYPE_INT;
-          }
+      if (value[0].type & VAR_TYPE_FLOAT)
+      {
+         value[0].var.i = (int32_t)value[0].var.f;
+         value[0].type = VAR_TYPE_INT;
+      }
       break;
    default:
       value[1] = *rpn_pull_queue();
